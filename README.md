@@ -17,4 +17,6 @@ See below for a description of each class and the content they cover.
 
 
 RPDR data obtained from dragracer package in R
+
 Images used simply as examples
+
