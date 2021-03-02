@@ -1,6 +1,6 @@
 # MATDRAB2MATFAB
 
-Repository for resoruces, codes, and data associated to my INTRO to MATLAB class.
+Repository for resoruces, codes, and data associated to an intro to MATLAB and Statistics class.
 This course will take you from MATDRAB to MATFAB in 8 sessions.
 See below for a description of each class and the content they cover.
 
