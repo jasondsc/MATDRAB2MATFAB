@@ -1,12 +1,21 @@
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% class 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%                                                      Class 3
+%                                              Signal Processing
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% simulating data
+clear all
+close all
 
-randn(1)
-randi(1)
-rand(1)
+%% Simulating data in MATLAB
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% you can use the rand, randn, and randi functions
+randn(1) % returns random number taken from normal dist
+randi(1) % retruns random number of maximum i
+rand(1) % returns random number between 0 and 1
 
 randn(10)
 randn(1,10)
@@ -15,14 +24,14 @@ randi(100, [10])
 rand(10)
 rand(1,10)
 
-% simulate oscilatory data
-
+% simulate oscilatory data with sin
 fs = 1000; % Sampling frequency (samples per second) 
  dt = 1/fs; % seconds per sample 
  StopTime = 3; % seconds 
  t = (0:dt:StopTime)'; % seconds 
  F = 60; % Sine wave frequency (hertz) 
  data = sin(2*pi*F*t);
+ figure
  plot(t,data)
 
 % add noise
@@ -34,23 +43,37 @@ fs = 1000; % Sampling frequency (samples per second)
 data = sin(2*pi*F*t)+rand(length(data),1) +  sin(2*pi*F2*t);
  plot(t,data)
 
+ 
+ % exercise 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Smoothing 
+%try generating random numbers between -1 and 1 using rand
 
-clear all
-close all
-load('./justafolderwithdata/raw_spike_data.mat') % load data spiking data recorded from electrode array
+% try generating random doubles between 1 and 10 using rand
+
+% try generating random doubles between 5 and 25 using randi
+
+% generate a oscilatory signal that monotonically decreases over time
+
+
+
+%% Data Smoothing
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+load('./justafolderwithdata/raw_spike_data.mat') % load spiking data recorded from electrode array
 sr=44100; % sampling rate of the electrode array
+% plot data
 figure
 subplot(2,1,1)
 plot(raw_spike_data) % plot data to visualize spikes and time series
 axis tight; 
 xlabel('time');
 ylabel('Micro Volts ');
-title('Unfiltered Single Electrode Spike Recording '); % clear slow drifts in data that need 
-                                                                                     %to be removed with a filter before clustering
+title('Unfiltered Single Electrode Spike Recording '); 
+
+% Lets try smoothig out some of those high frequency components 
 subplot(2,1,2)
-plot(smooth(raw_spike_data)) % plot data to visualize spikes and time series
+plot(smooth(raw_spike_data)) 
 axis tight; 
 xlabel('time');
 ylabel('Micro Volts ');
@@ -71,6 +94,7 @@ ylabel('Micro Volts ');
 title('Unfiltered Single Electrode Spike Recording ');
                                                                                      
 
+% detrend works by removing linear trend in data 
 fs = 1000; % Sampling frequency (samples per second) 
 dt = 1/fs; % seconds per sample 
 StopTime = 3; % seconds 
@@ -82,25 +106,32 @@ data = sin(2*pi*F*t)+rand(length(data),1) +  sin(2*pi*F2*t) + 1/length(data)*[1:
 plot(t,data)
 plot(t,detrend(data))
 
-%% Normalize data 
+%% Normalizing data and removing outliers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% generate random data
 temp_data=randi(100,10);
-
+% try removing the data's mean
 temp_data-mean(temp_data)
 temp_data-mean(temp_data,2)
 temp_data-mean(mean(temp_data))
 
+% normalize 
 normalize(temp_data)
-
+normalize(temp_data, 'range')
+normalize(temp_data, 'center')
+% normalize does the equevelant of ....
 (temp_data-mean(temp_data))./std(temp_data)
 
+% filloutliers can remove data that does not seem to belong
 data = sin(2*pi*F*t)+rand(length(data),1) +  sin(2*pi*F2*t)
 data(randi(length(data),1,50))=100;
 plot(t,data)           
 plot(filloutliers(data, 'linear'))
 
 
-%% FFT
+%% Spectral Power, FFTs, and PSDs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Fs = 1000;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period       
@@ -175,9 +206,28 @@ xlabel('Frequency (Hz)')
 ylabel('PSD (dB/Hz)')
 
 
-%% filter data 
-% create and apply filter butter worth filter
+%% Filtering Data
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+sr=44100; % sampling rate of the electrode array
+figure
+subplot(2,1,1)
+plot(raw_spike_data) % plot data to visualize spikes and time series
+axis tight; 
+xlabel('time');
+ylabel('Micro Volts ');
+title('Unfiltered Single Electrode Spike Recording '); % clear slow drifts in data that need to be removed
+           
+% create and apply bandpass butter worth filter
 [b,a] = butter(3,[500/(sr/2) 8000/(sr/2)], 'bandpass'); % create butterworth filter 
+filtered_data=filter(b,a,raw_spike_data); % apply butter worth filter 
+
+xlabel('Frequency (Hz)')
+ylabel('PSD (dB/Hz)')
+
+
+% create and apply lowpass butter worth filter
+[b,a] = butter(3,[100/(sr/2)], 'low'); % create butterworth filter 
 filtered_data=filter(b,a,raw_spike_data); % apply butter worth filter 
 
 % plot filtered data with unfiltered data 
@@ -188,43 +238,114 @@ xlabel('time');
 ylabel('Micro Volts ');
 title('Filtered Single Electrode Spike Recording ');
 
-% threshold data to find peaks (i.e., spikes) with MATLAB's findpeaks
-[pks,locs]=findpeaks(-1*filtered_data, 'MinPeakHeight',3.5*std(filtered_data)); 
-% TIP input the inverse of the data (i.e. -1*) as findpeaks looks
-% for local maxima and not minima
 
-% Plot peaks found
-figure 
+% create and apply highpass butter worth filter
+[b,a] = butter(3,[500/(sr/2)], 'high'); % create butterworth filter 
+filtered_data=filter(b,a,raw_spike_data); % apply butter worth filter 
+
+% plot filtered data with unfiltered data 
+subplot(2,1,2)
 plot(filtered_data)
-hold on;
-scatter(locs,-1*pks)
 axis tight;
 xlabel('time');
 ylabel('Micro Volts ');
 title('Filtered Single Electrode Spike Recording ');
 
-% extract deisred window [-20 to 43] samples around a peak
-for i =1:length(locs)
-peaks(i,:)=filtered_data(locs(i)-20:locs(i)+43);
-end
 
+% lets try FIR filters 
+load chirp % load data
+Fs=8192;
+t = (0:length(y)-1)/Fs;
+
+%create filter for data
+bhi = fir1(34,100/Fs,'low');
+freqz(bhi,1)
+outhi = filter(bhi,1,y); % filter data
+
+% plot results 
 figure
-plot(-20:43, peaks')
-axis tight
-xlabel('time (number of samples)');
-ylabel('Micro Volts ');
-title('Extracted Timeseries of Peaks ');
+subplot(2,1,1)
+plot(t,y)
+title('Original Signal')
+ys = ylim;
+
+subplot(2,1,2)
+plot(t,outhi)
+title('Highpass Filtered Signal')
+xlabel('Time (s)')
+ylim(ys)
+
+soundsc(y)
+pause(2)
+soundsc(outhi)
 
 
+bhi = fir1(34,[100/Fs 1000/Fs ],'bandpass');
+freqz(bhi,1)
 
-%% hilbert 
-data=zeros(3001,1);
-data = sin(2*pi*F*t) + rand(length(data),1) +  sin(2*pi*F2*t) + 1/length(data)*[1:length(data)]';
- plot(t,data)
+outhi = filter(bhi,1,y);
+figure
+subplot(2,1,1)
+plot(t,y)
+title('Original Signal')
+ys = ylim;
+
+subplot(2,1,2)
+plot(t,outhi)
+title('Highpass Filtered Signal')
+xlabel('Time (s)')
+ylim(ys)
+
+soundsc(y)
+pause(2)
+soundsc(outhi)
+
+
+bhi = fir1(34,[100/Fs 5000/Fs ],'bandpass');
+freqz(bhi,1)
+
+outhi = filter(bhi,1,y);
+figure
+subplot(2,1,1)
+plot(t,y)
+title('Original Signal')
+ys = ylim;
+
+subplot(2,1,2)
+plot(t,outhi)
+title('Highpass Filtered Signal')
+xlabel('Time (s)')
+ylim(ys)
+
+soundsc(y)
+pause(2)
+soundsc(outhi)
+
+
+ % exercise 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%try highpass and lowpass filtering the electrophysiology data into
+% fast and slow oscilatory components. Try adding them back together and
+% see what happens, try moving around the filter frequency. What could be
+% causing this?
+
+
+%% Hilbert Transformation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% generate oscillatory data
+Fs = 1000;            % Sampling frequency                    
+T = 1/Fs;             % Sampling period       
+L = 1000;             % Length of signal
+t = (0:L-1)*T;        % Time vector
+
+data=zeros(1000,1);
+data = sin(2*pi*F*t) + rand(length(data),1)' +  sin(2*pi*F2*t) + 1/length(data)*[1:length(data)];
+figure
+plot(t,data)
  
- hil=hilbert(data);
+% get the hilbert transform of data
+ hil=hilbert(data); % notice that the data is stored as complex not int or double
  
- figure
  subplot(1,2,1)
  plot(t,data)
  hold on
@@ -234,11 +355,11 @@ data = sin(2*pi*F*t) + rand(length(data),1) +  sin(2*pi*F2*t) + 1/length(data)*[
 
 
 data = sin(2*pi*2*t).*sin(2*pi*F*t) ;
- plot(t,data)
+figure
+plot(t,data)
  
  hil=hilbert(data);
  
- figure
  subplot(1,2,1)
  plot(t,data)
  hold on
@@ -246,224 +367,21 @@ data = sin(2*pi*2*t).*sin(2*pi*F*t) ;
   subplot(1,2,2)
  plot(t,angle(hil))
  
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% class 5
-clear all
-close all
-
-%% PCA example with image
-image=imread('./WhoAmI.jpg');
-%image=imread('./ladygaga4.jpg');
-
-
-image=mean(double(image),3);
+ hil=hilbert(raw_spike_data);
 figure
-subplot(3,3,9)
-imagesc(image)
-colormap(gray)
-axis off;
+subplot(1,2,1)
+plot(raw_spike_data)
+hold on
+plot(abs(hil), '-r')
+subplot(1,2,2)
+plot(angle(hil))
+ 
 
-
-[coeff, score, latent, tsquared, explained, mu]=pca(image);
-
-subplot(3,3,1)
-imagesc(score(:,1)*coeff(:,1)')
-colormap(gray)
-axis off;
-subplot(3,3,2)
-imagesc(score(:,1:2)*coeff(:,1:2)')
-colormap(gray)
-axis off;
-subplot(3,3,3)
-imagesc(score(:,1:5)*coeff(:,1:5)')
-colormap(gray)
-axis off;
-subplot(3,3,4)
-imagesc(score(:,1:10)*coeff(:,1:10)')
-colormap(gray)
-axis off;
-subplot(3,3,5)
-imagesc(score(:,1:20)*coeff(:,1:20)')
-colormap(gray)
-axis off;
-subplot(3,3,6)
-imagesc(score(:,1:30)*coeff(:,1:30)')
-colormap(gray)
-axis off;
-subplot(3,3,7)
-imagesc(score(:,1:50)*coeff(:,1:50)')
-colormap(gray)
-axis off;
-subplot(3,3,8)
-imagesc(score(:,1:100)*coeff(:,1:100)')
-colormap(gray)
-axis off;
-
-
-%% ICA
-
-figure
-subplot(3,4,12)
-imagesc(image)
-colormap(gray)
-axis off;
-
-ica_out=rica(image,50);
-
-t=transform(ica_out,image);
-
-
-subplot(3,4,1)
-imagesc(t(:,1)*ica_out.TransformWeights(:,1)')
-colormap(gray)
-axis off
-
-subplot(3,4,2)
-imagesc(t(:,1:2)*ica_out.TransformWeights(:,1:2)')
-colormap(gray)
-axis off;
-
-subplot(3,4,3)
-imagesc(t(:,1:3)*ica_out.TransformWeights(:,1:3)')
-colormap(gray)
-axis off;
-
-
-subplot(3,4,4)
-imagesc(t(:,1:5)*ica_out.TransformWeights(:,1:5)')
-colormap(gray)
-axis off;
-
-subplot(3,4,5)
-imagesc(t(:,1:10)*ica_out.TransformWeights(:,1:10)')
-colormap(gray)
-axis off;
-
-subplot(3,4,6)
-imagesc(t(:,1:20)*ica_out.TransformWeights(:,1:20)')
-colormap(gray)
-axis off;
-
-subplot(3,4,7)
-imagesc(t(:,1:25)*ica_out.TransformWeights(:,1:25)')
-colormap(gray)
-axis off;
-
-subplot(3,4,8)
-imagesc(t(:,1:30)*ica_out.TransformWeights(:,1:30)')
-colormap(gray)
-axis off;
-
-subplot(3,4,9)
-imagesc(t(:,1:35)*ica_out.TransformWeights(:,1:35)')
-colormap(gray)
-axis off;
-
-subplot(3,4,10)
-imagesc(t(:,1:40)*ica_out.TransformWeights(:,1:40)')
-colormap(gray)
-axis off;
-
-subplot(3,4,11)
-imagesc(t(:,1:45)*ica_out.TransformWeights(:,1:45)')
-colormap(gray)
-axis off;
-
-
-
-%%
-rng default
-
-files = {'chirp.mat'
-        'gong.mat'
-        'handel.mat'
-        'laughter.mat'
-        'splat.mat'
-        'train.mat'};
-
-S = zeros(10000,6);
-for i = 1:6
-    test     = load(files{i});
-    y        = test.y(1:10000,1);
-    S(:,i)   = y;
-end
-
-mixdata = S*randn(6) + randn(1,6);
-
-figure
-for i = 1:6
-    subplot(2,6,i)
-    plot(S(:,i))
-    title(['Sound ',num2str(i)])
-    subplot(2,6,i+6)
-    plot(mixdata(:,i))
-    title(['Mix ',num2str(i)])
-end
-
-% play sound
-soundsc(S(:,1));
-pause(2)
-soundsc(mixdata(:,1))
-
-% run ica
-mixdata = prewhiten(mixdata);
-q = 6;
-Mdl = rica(mixdata,q,'NonGaussianityIndicator',ones(6,1));
-
-unmixed = transform(Mdl,mixdata);
-
-figure
-for i = 1:6
-    subplot(2,6,i)
-    plot(S(:,i))
-    title(['Sound ',num2str(i)])
-    subplot(2,6,i+6)
-    plot(unmixed(:,i))
-    title(['Unmix ',num2str(i)])
-end
-
-% play sound
-soundsc(S(:,1));
-pause(2)
-soundsc(unmixed(:,1))
-
-
-
-
-%%                                           K- means
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-clear all
-close all
-load('./justafolderwithdata/raw_spike_data.mat') % load data spiking data recorded from electrode array
-sr=44100; % sampling rate of the electrode array
-figure
-subplot(2,1,1)
-plot(raw_spike_data) % plot data to visualize spikes and time series
-axis tight; 
-xlabel('time');
-ylabel('Micro Volts ');
-title('Unfiltered Single Electrode Spike Recording '); % clear slow drifts in data that need 
-                                                                                     %to be removed with a filter before clustering
-
-
-
-% create and apply filter butter worth filter
-[b,a] = butter(3,[500/(sr/2) 8000/(sr/2)], 'bandpass'); % create butterworth filter 
-filtered_data=filter(b,a,raw_spike_data); % apply butter worth filter 
-
-% plot filtered data with unfiltered data 
-subplot(2,1,2)
-plot(filtered_data)
-axis tight;
-xlabel('time');
-ylabel('Micro Volts ');
-title('Filtered Single Electrode Spike Recording ');
+%% Finding peaks 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % threshold data to find peaks (i.e., spikes) with MATLAB's findpeaks
-[pks,locs]=findpeaks(-1*filtered_data, 'MinPeakHeight',3.5*std(filtered_data)); 
+[pks,locs]=findpeaks(-1*filtered_data, 'MinPeakHeight',0.3); 
 % TIP input the inverse of the data (i.e. -1*) as findpeaks looks
 % for local maxima and not minima
 
@@ -477,92 +395,34 @@ xlabel('time');
 ylabel('Micro Volts ');
 title('Filtered Single Electrode Spike Recording ');
 
-% extract deisred window [-20 to 43] samples around a peak
-for i =1:length(locs)
-peaks(i,:)=filtered_data(locs(i)-20:locs(i)+43);
-end
+% MinPeakProminence
+[pks,locs]=findpeaks(-1*filtered_data, 'MinPeakProminence',0.3); 
 
-figure
-plot(-20:43, peaks')
-axis tight
-xlabel('time (number of samples)');
+% Plot peaks found
+figure 
+plot(filtered_data)
+hold on;
+scatter(locs,-1*pks)
+axis tight;
+xlabel('time');
 ylabel('Micro Volts ');
-title('Extracted Timeseries of Peaks ');
+title('Filtered Single Electrode Spike Recording ');
 
-% run PCA over peaks to extract features; how many components are
-% visbale? 
-[coeff,score,latent,~,explained] = pca(peaks);
-figure
-plot(explained, '-*'); % plot percent var explained
-xlabel("Component Number")
-ylabel("Percent Variance Explained (%)")
+% Threshold
+[pks,locs]=findpeaks(-1*filtered_data, 'Threshold',0.1); 
 
-% lets plot first two components and see how the data scatters
-figure
-scatter(score(:,1), score(:,2), '.')
-
-% now that we have extracted features from the data let us see how they
-% cluster together
-
-% Run K-means clustering 
-opts = statset('Display','final');
-numclust=10; % max number of k
-ctrs = zeros(size(peaks,1), numclust);
-ids = zeros(size(peaks,1), numclust);
-sumd= zeros(1,numclust);
-
-for j=1:numclust
-[ids(:,j)] = kmeans(peaks, j, 'Replicates', 20, 'Options', opts);
-
-end
-
-% find the optimal solution for the best number of clusters
-
-eva_cali = evalclusters(peaks,ids,'CalinskiHarabasz') % evaluate the best number of k clusters
-eva_sil = evalclusters(peaks,ids,'silhouette') % evaluate the best number of k clusters
-eva_Dav = evalclusters(peaks,ids,'DaviesBouldin') % evaluate the best number of clusters
-
-% all three methods returned different numbers, plot the silhouettes
-figure
-silhouette(peaks,ids(:,2))
-figure
-silhouette(peaks,ids(:,3))
-figure
-silhouette(peaks,ids(:,4))
-
-% plot 3 cluster solution in PCA space
-[ids_opt, crit_opt] = kmeans(score, 3, 'Replicates', 20, 'Options', opts); % 3 cluster optimal solution
-
-figure
-scatter(score(ids_opt==1,1), score(ids_opt==1,2), '.g')
+% Plot peaks found
+figure 
+plot(filtered_data)
 hold on;
-scatter(score(ids_opt==2,1), score(ids_opt==2,2), '.m')
-hold on;
-scatter(score(ids_opt==3,1), score(ids_opt==3,2), '.c')
-hold on;
-scatter(crit_opt(1:3,1), crit_opt(1:3,2), 200, 'kX')
-hold on;
-scatter(crit_opt(1:3,1), crit_opt(1:3,2), 200, 'kd')
+scatter(locs,-1*pks)
+axis tight;
+xlabel('time');
+ylabel('Micro Volts ');
+title('Filtered Single Electrode Spike Recording ');
 
+ % exercise 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%% REMINDER TO CHNAGE COLOUR OF PLOTS CANNOT SEE
-
-
-
-%Drag race clustering example: 
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% class 6 
-
-   X = randn(8,8);
-   Y = randn(8,8);
-   
-   corr(X,Y)
-   corr2(X,Y)
-   corrcoef(X,Y)
-   
-   
+%try using the mean, median, and std of the data determine the cutoff for
+%detecting peaks.
