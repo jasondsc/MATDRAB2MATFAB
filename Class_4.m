@@ -1,22 +1,28 @@
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%                                                      Class 
+%                                        Plotting graphs in MATLAB
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
- 
- %%%%%%%%%%%%%%%%%%%%%%%%%%
-%% class 5
-
-clear all 
+clear all
 close all
 
+%% What Not to plot
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure
 subplot(1,2,1)
 bar([55.9 54.7 55.2 55.3 56 54.4 55.3 54.0])
 subplot(1,2,2)
 bar([55.9 54.7 55.2 55.3 56 54.4 55.3 54.0])
-ylim([50,58])
+ylim([50,58]) 
+% it is importnat not to over emphasize effects changing the scale of a
+% graph may make you effect appear larger than it is. Also remeber to
+% always plot a measure of uncertanty or data spread.
+
  
-
 image=imread('./MemeFolder/ladygaga4.jpg');
-
 
 image=imgaussfilt(mean(double(image),3),100);
  
@@ -40,91 +46,91 @@ imagesc(image)
 colorbar
 colormap(gca, jet)
 caxis([50 200])
+% the colour map you pick and how you center it can over or under emphasize
+% effects. Remeber to pick colour bars that are readable for everyone.
 
 
+%% Plotting basics with plot()
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure 
 plot(1:1000, 150000-1000*(1:1000)+randi(100000, [1,1000]))
  xlabel('time')
  ylabel('money')
- title('Time is money')
+ title('Time is money') % adding labels
  
  data=[150000-1000*(1:1000)+randi(100000, [1,1000]);...
      150000-2000*(1:1000)+randi(100000, [1,1000]);...
      150000-1000*(1:1000)+randi(100000, [1,1000])];
  
 figure 
-plot(1:1000, data)
+plot(1:1000, data) % plotting data from multiple groups 
  xlabel('time')
  ylabel('money')
  title('Time is money')
- legend('Karen','Maria', 'Hope')
+ legend('Karen','Maria', 'Hope') % adding a legend 
  
- 
+ %  specifiers in the plot function can modify the look of the plot
+ % you can change the shape, line, and colour easily 
+ % also note that Colours can be expressed as [R G B alpha] 
  plot(1:1000, data,'-o','MarkerFaceColor',[.5 .4 .7], 'MarkerEdgeColor',[.7 .7 .7], 'MarkerSize', 10)
 % axis([0 100 0 100])
 xlim([0 100])
 
-RPDR_episode=readtable('./justafolderwithdata/RPDR_episode_data.csv');
- RPDR_contestant=readtable('./justafolderwithdata/RPDR_contestant_score.csv');
- RPDR_winners=readtable('./justafolderwithdata/RPDR_winners.csv');
-
- winnerindex=ismember(RPDR_contestant.contestant, RPDR_winners.contestant(RPDR_winners.winner==1))
-
- top3index=ismember(RPDR_contestant.contestant, RPDR_winners.contestant(RPDR_winners.winner==0))
- 
- explode = [1 0 1 0 ];
-labels = {'Wins','High','Low', 'Btm'};
+% you can also use functions to redifine the labels of your axes as well as
+% their 'ticks'
+x = linspace(-10,10,200);
+y = cos(x);
 figure
 subplot(1,2,1)
-pie([sum(RPDR_contestant.WIN(winnerindex)), sum(RPDR_contestant.HIGH(winnerindex)),...
-    sum(RPDR_contestant.LOW(winnerindex)), sum(RPDR_contestant.BTM(winnerindex))], explode, labels)
- title(gca, 'Winner of their season', 'Position',[-0.12 -1.5 0])
- colormap(gca, cool)
- 
- subplot(1,2,2)
-pie([sum(RPDR_contestant.WIN(top3index)), sum(RPDR_contestant.HIGH(top3index)),...
-    sum(RPDR_contestant.LOW(top3index)), sum(RPDR_contestant.BTM(top3index))], explode, labels)
- title(gca, 'Top 3', 'Position',[0.02, -1.5 0])
-colormap(gca, cool)
- 
-RPDR_episode=RPDR_episode(~ismissing(RPDR_episode.lipsyncartist, 'NA'),:);
-lipsynch= groupsummary(RPDR_episode,"lipsyncartist")
+plot(x,y)
+subplot(1,2,2)
+plot(x,y)
+xticks([-3*pi -2*pi -pi 0 pi 2*pi 3*pi])
+xticklabels({'-3\pi','-2\pi','-\pi','0','\pi','2\pi','3\pi'})
+yticks([-1 -0.8 -0.2 0 0.2 0.8 1])
+
+ % exercise 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%try plotting three oscilations in one graph and overlay them with
+%transparency 
+
+ % Error Bars
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+y=rand(100,10);
+x=1:10:100;
+figure
+plot(x, mean(y))
+hold on
+errorbar(x, mean(y),std(y)) % you can plot data with error bars using the errorbar function
+
+y=rand(100,10);
+x=1:10:100;
+figure
+plot(x, mean(y))
+hold on
+errorbar(x, mean(y),std(y),'CapSize',20, 'LineWidth', 5)
+
+y=rand(100,10);
+x=1:10:100;
+figure
+plot(x, mean(y))
+hold on
+errorbar(x, mean(y),std(y),'-s','MarkerSize',10,...
+    'MarkerEdgeColor','blue','MarkerFaceColor','black','CapSize',20, 'LineWidth', 5)
+% The function works exacrly like plot, expect it wants 3 inputs for the
+% data. To change the appearnce of the graph see plot above 
 
 figure
-wordcloud(lipsynch,'lipsyncartist','GroupCount');
-title("Artists to LipSynch to")
+plot(x, mean(y))
+hold on
+errorbar(x, mean(y),std(y),'-s','MarkerSize',10,...
+    'MarkerEdgeColor','blue','MarkerFaceColor','black','CapSize',20, 'LineStyle', 'none', 'LineWidth', 5)  
+% note how the specifier 'LineStyle' 'none' allows you to control the error
+% bars sepeartely from the plot!
 
- 
- RPDR_contestant_demo=readtable('./justafolderwithdata/RPDR_contestant_data.csv');
- 
- 
- winnerindex=ismember(RPDR_contestant_demo.contestant, RPDR_winners.contestant(RPDR_winners.winner==1))
 
- top3index=ismember(RPDR_contestant_demo.contestant, RPDR_winners.contestant(RPDR_winners.winner==0))
-
- figure
- histogram(RPDR_contestant_demo.age(top3index),10, 'FaceAlpha', 0.5, 'EdgeAlpha', 0.5)
- hold on;
- histogram(RPDR_contestant_demo.age(winnerindex),10, 'FaceAlpha', 0.5, 'EdgeAlpha', 0.5, 'FaceColor', [0.99 0.5 0.5])
- legend('Top 3', 'Winners')
- xlabel('age')
- 
- 
- 
- 
- % scatter 
-iris= load('fisheriris.mat');
-iris.meas=iris.meas -mean([iris.meas]);
- 
- figure
- scatter(iris.meas(:,1), iris.meas(:,4))
- hold on
- r=corr(iris.meas(:,1), iris.meas(:,4))
- xFit = linspace(min(iris.meas(:,1)), max(iris.meas(:,1)), 1000);
- plot(xFit, r*xFit)
- 
- 
- 
+ % Bar graphs
  data=[sum(RPDR_contestant.WIN(winnerindex)), sum(RPDR_contestant.HIGH(winnerindex)),...
     sum(RPDR_contestant.LOW(winnerindex)), sum(RPDR_contestant.BTM(winnerindex)); ...
     sum(RPDR_contestant.WIN(top3index)), sum(RPDR_contestant.HIGH(top3index)),...
@@ -144,323 +150,237 @@ X = reordercats(X,{'Monday','Tuesday','Wednesday','Thursday', 'Friday'});
 bar(X,Y)
 yticks([0  20  40  60 ])
  
+
+x = categorical({'The Fame' 'Born This Way' 'Artpop' 'Cheek to Cheek' 'Joanne' 'Chromatica'});
+x = reordercats(x,{'The Fame' 'Born This Way' 'Artpop' 'Cheek to Cheek' 'Joanne' 'Chromatica'});
+data = randi(100, 100, 6);
+errhigh =std(data);
+errlow  =  std(data);
+
+figure
+bar(x,mean(data))                
+hold on
+er = errorbar(x,mean(data),errlow,errhigh);    
+er.Color = [0 0 0];                            
+er.LineStyle = 'none';  
+
+
+%% Plotting your data's distribution
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Another way to represent you data takes advantaged of the distribution of
+% your data. Histograms allow you to visualize your data's shape to make
+% conclusions on what effects might be present and what statistical tests you can prefrom etc
+ RPDR_contestant_demo=readtable('./justafolderwithdata/RPDR_contestant_data.csv');
+
+ winnerindex=ismember(RPDR_contestant_demo.contestant, RPDR_winners.contestant(RPDR_winners.winner==1))
+
+ top3index=ismember(RPDR_contestant_demo.contestant, RPDR_winners.contestant(RPDR_winners.winner==0))
+
+ figure
+ histogram(RPDR_contestant_demo.age(top3index),6, 'FaceAlpha', 0.5, 'EdgeAlpha', 0.5)
+ hold on;
+ histogram(RPDR_contestant_demo.age(winnerindex),6, 'FaceAlpha', 0.5, 'EdgeAlpha', 0.5, 'FaceColor', [0.99 0.5 0.5])
+ legend('Top 3', 'Winners')
+ xlabel('age')
+
+ % if you know which distribution your data came from or you would like to 
+ % compare you data to a distribution you can also plot a probaility density function.
  
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% class 5
-clear all
-close all
+ x = 2*randn(5000,1) + 26;
+ figure
+histogram(x,'Normalization','pdf')
+ hold on
+y = 10:0.1:40;
+mu = 26;
+sigma = 2;
+f = exp(-(y-mu).^2./(2*sigma^2))./(sigma*sqrt(2*pi)); % must compute a gaussian or dist yourself
+% you can look up the formla for a gaussian
+plot(y,f,'LineWidth',1.5)
+ 
+ figure
+ histogram(RPDR_contestant_demo.age(top3index),6, 'Normalization','pdf','FaceAlpha', 0.5, 'EdgeAlpha', 0.5)
+  hold on
+y = 10:0.1:40;
+mu = 26;
+sigma = 2;
+f = exp(-(y-mu).^2./(2*sigma^2))./(sigma*sqrt(2*pi));
+plot(y,f,'LineWidth',1.5)
 
-%% PCA example with image
-image=imread('./WhoAmI.jpg');
-%image=imread('./ladygaga4.jpg');
+ % scatter plots also allow you to visualize the spread of your data
+ % very useful to see what is happening across conditions 
+iris= load('fisheriris.mat');
+iris.meas=iris.meas -mean([iris.meas]);
+ 
+ figure
+ scatter(iris.meas(:,1), iris.meas(:,4))
+ hold on
+ r=corr(iris.meas(:,1), iris.meas(:,4))
+ xFit = linspace(min(iris.meas(:,1)), max(iris.meas(:,1)), 1000);
+ plot(xFit, r*xFit)
+ 
+ % alternatively you can plot each individual across condition and draw a
+ % line between them to see the effect
+ 
+ x=rand(2,100)+0.05;
+ figure
+ plot(x, '.-','Color', [0.3 0.3 0.3 0.3], 'MarkerSize', 15, 'MarkerFaceColor', [0.3 0.3 0.3 ])
+ hold on
+ plot(mean(x'), 'o-', 'Color', [0 0 0], 'LineWidth', 5,'MarkerSize', 15, 'MarkerFaceColor', [0 0 1], 'MarkerEdgeColor',[0 0 1] )
+ xlim([0 3])
+ ylim([ 0 1.1])
 
+%% Other fun plotting tools in MATLAB
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-image=mean(double(image),3);
+RPDR_episode=readtable('./justafolderwithdata/RPDR_episode_data.csv');
+RPDR_contestant=readtable('./justafolderwithdata/RPDR_contestant_score.csv');
+RPDR_winners=readtable('./justafolderwithdata/RPDR_winners.csv');
+
+% get index of those Queens who won their season and made it to the top 3
+ winnerindex=ismember(RPDR_contestant.contestant, RPDR_winners.contestant(RPDR_winners.winner==1))
+ top3index=ismember(RPDR_contestant.contestant, RPDR_winners.contestant(RPDR_winners.winner==0))
+ 
+ % lets plot a pie graph with this data
+ explode = [1 0 1 0 ]; % determines which section of the graph will stand out
+labels = {'Wins','High','Low', 'Btm'};
 figure
-subplot(3,3,9)
-imagesc(image)
-colormap(gray)
-axis off;
+subplot(1,2,1)
+pie([sum(RPDR_contestant.WIN(winnerindex)), sum(RPDR_contestant.HIGH(winnerindex)),...
+    sum(RPDR_contestant.LOW(winnerindex)), sum(RPDR_contestant.BTM(winnerindex))], explode, labels)
+ title(gca, 'Winner of their season', 'Position',[-0.12 -1.5 0])
+ colormap(gca, cool)
+ 
+ subplot(1,2,2)
+pie([sum(RPDR_contestant.WIN(top3index)), sum(RPDR_contestant.HIGH(top3index)),...
+    sum(RPDR_contestant.LOW(top3index)), sum(RPDR_contestant.BTM(top3index))], explode, labels)
+ title(gca, 'Top 3', 'Position',[0.02, -1.5 0])
+colormap(gca, cool)
 
-
-[coeff, score, latent, tsquared, explained, mu]=pca(image);
-
-subplot(3,3,1)
-imagesc(score(:,1)*coeff(:,1)')
-colormap(gray)
-axis off;
-subplot(3,3,2)
-imagesc(score(:,1:2)*coeff(:,1:2)')
-colormap(gray)
-axis off;
-subplot(3,3,3)
-imagesc(score(:,1:5)*coeff(:,1:5)')
-colormap(gray)
-axis off;
-subplot(3,3,4)
-imagesc(score(:,1:10)*coeff(:,1:10)')
-colormap(gray)
-axis off;
-subplot(3,3,5)
-imagesc(score(:,1:20)*coeff(:,1:20)')
-colormap(gray)
-axis off;
-subplot(3,3,6)
-imagesc(score(:,1:30)*coeff(:,1:30)')
-colormap(gray)
-axis off;
-subplot(3,3,7)
-imagesc(score(:,1:50)*coeff(:,1:50)')
-colormap(gray)
-axis off;
-subplot(3,3,8)
-imagesc(score(:,1:100)*coeff(:,1:100)')
-colormap(gray)
-axis off;
-
-
-%% ICA
-
-figure
-subplot(3,4,12)
-imagesc(image)
-colormap(gray)
-axis off;
-
-ica_out=rica(image,50);
-
-t=transform(ica_out,image);
-
-
-subplot(3,4,1)
-imagesc(t(:,1)*ica_out.TransformWeights(:,1)')
-colormap(gray)
-axis off
-
-subplot(3,4,2)
-imagesc(t(:,1:2)*ica_out.TransformWeights(:,1:2)')
-colormap(gray)
-axis off;
-
-subplot(3,4,3)
-imagesc(t(:,1:3)*ica_out.TransformWeights(:,1:3)')
-colormap(gray)
-axis off;
-
-
-subplot(3,4,4)
-imagesc(t(:,1:5)*ica_out.TransformWeights(:,1:5)')
-colormap(gray)
-axis off;
-
-subplot(3,4,5)
-imagesc(t(:,1:10)*ica_out.TransformWeights(:,1:10)')
-colormap(gray)
-axis off;
-
-subplot(3,4,6)
-imagesc(t(:,1:20)*ica_out.TransformWeights(:,1:20)')
-colormap(gray)
-axis off;
-
-subplot(3,4,7)
-imagesc(t(:,1:25)*ica_out.TransformWeights(:,1:25)')
-colormap(gray)
-axis off;
-
-subplot(3,4,8)
-imagesc(t(:,1:30)*ica_out.TransformWeights(:,1:30)')
-colormap(gray)
-axis off;
-
-subplot(3,4,9)
-imagesc(t(:,1:35)*ica_out.TransformWeights(:,1:35)')
-colormap(gray)
-axis off;
-
-subplot(3,4,10)
-imagesc(t(:,1:40)*ica_out.TransformWeights(:,1:40)')
-colormap(gray)
-axis off;
-
-subplot(3,4,11)
-imagesc(t(:,1:45)*ica_out.TransformWeights(:,1:45)')
-colormap(gray)
-axis off;
-
-
-
-%%
-rng default
-
-files = {'chirp.mat'
-        'gong.mat'
-        'handel.mat'
-        'laughter.mat'
-        'splat.mat'
-        'train.mat'};
-
-S = zeros(10000,6);
-for i = 1:6
-    test     = load(files{i});
-    y        = test.y(1:10000,1);
-    S(:,i)   = y;
-end
-
-mixdata = S*randn(6) + randn(1,6);
+% Lets make a word cloud of RuPaul's favoruite musicians
+RPDR_episode=RPDR_episode(~ismissing(RPDR_episode.lipsyncartist, 'NA'),:);
+lipsynch= groupsummary(RPDR_episode,"lipsyncartist")
 
 figure
-for i = 1:6
-    subplot(2,6,i)
-    plot(S(:,i))
-    title(['Sound ',num2str(i)])
-    subplot(2,6,i+6)
-    plot(mixdata(:,i))
-    title(['Mix ',num2str(i)])
-end
+wordcloud(lipsynch,'lipsyncartist','GroupCount', 'Color', [0.9 0.5 0.5 ], 'HighlightColor',[0.9 0.3 0.3 ] );
+title('Artists to Lipsynch to ')
 
-% play sound
-soundsc(S(:,1));
-pause(2)
-soundsc(mixdata(:,1))
 
-% run ica
-mixdata = prewhiten(mixdata);
-q = 6;
-Mdl = rica(mixdata,q,'NonGaussianityIndicator',ones(6,1));
-
-unmixed = transform(Mdl,mixdata);
+% staircase plots
+X = linspace(0,4*pi,50)';
+Y = [0.5*cos(X), 2*cos(X)];
 
 figure
-for i = 1:6
-    subplot(2,6,i)
-    plot(S(:,i))
-    title(['Sound ',num2str(i)])
-    subplot(2,6,i+6)
-    plot(unmixed(:,i))
-    title(['Unmix ',num2str(i)])
-end
+stairs(Y)
 
-% play sound
-soundsc(S(:,1));
-pause(2)
-soundsc(unmixed(:,1))
+Fs = 1000;            % Sampling frequency                    
+T = 1/Fs;             % Sampling period       
+L = 1000;             % Length of signal
+t = (0:L-1)*T;        % Time vector
 
-
-
-
-%%                                           K- means
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-clear all
-close all
-load('./justafolderwithdata/raw_spike_data.mat') % load data spiking data recorded from electrode array
-sr=44100; % sampling rate of the electrode array
+data = sin(2*pi*2*t).*sin(2*pi*10*t) + rand(1,length(t));
 figure
-subplot(2,1,1)
-plot(raw_spike_data) % plot data to visualize spikes and time series
-axis tight; 
-xlabel('time');
-ylabel('Micro Volts ');
-title('Unfiltered Single Electrode Spike Recording '); % clear slow drifts in data that need 
-                                                                                     %to be removed with a filter before clustering
+plot(t, angle(hil))
+figure
+hil=hilbert(data);
+polarhistogram(angle(hil),6)
+ 
 
+%% Plotting with the Gramm Toolbox
+% % I'm not a regular graph, I am a cool graph
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Gramm is a toolbox that can be downloaed to extend MATLAB's graphics
+% capacities. Gramm works with a similar syntax to ggplot in R and as such
+% is significantly different than MATLAB's syntax. Below are a few examples
+% of different plots you can make with gramm
 
-% create and apply filter butter worth filter
-[b,a] = butter(3,[500/(sr/2) 8000/(sr/2)], 'bandpass'); % create butterworth filter 
-filtered_data=filter(b,a,raw_spike_data); % apply butter worth filter 
-
-% plot filtered data with unfiltered data 
-subplot(2,1,2)
-plot(filtered_data)
-axis tight;
-xlabel('time');
-ylabel('Micro Volts ');
-title('Filtered Single Electrode Spike Recording ');
-
-% threshold data to find peaks (i.e., spikes) with MATLAB's findpeaks
-[pks,locs]=findpeaks(-1*filtered_data, 'MinPeakHeight',3.5*std(filtered_data)); 
-% TIP input the inverse of the data (i.e. -1*) as findpeaks looks
-% for local maxima and not minima
-
-% Plot peaks found
-figure 
-plot(filtered_data)
-hold on;
-scatter(locs,-1*pks)
-axis tight;
-xlabel('time');
-ylabel('Micro Volts ');
-title('Filtered Single Electrode Spike Recording ');
-
-% extract deisred window [-20 to 43] samples around a peak
-for i =1:length(locs)
-peaks(i,:)=filtered_data(locs(i)-20:locs(i)+43);
-end
+load example_data.mat
 
 figure
-plot(-20:43, peaks')
-axis tight
-xlabel('time (number of samples)');
-ylabel('Micro Volts ');
-title('Extracted Timeseries of Peaks ');
+g=gramm('x',cars.Model_Year,'y',cars.MPG,'color',cars.Cylinders,'subset',cars.Cylinders~=3 & cars.Cylinders~=5);
+g.facet_grid([],cars.Origin_Region);
+g.geom_point();
+g.stat_glm();
+g.set_names('column','Origin','x','Year of production','y','Fuel economy (MPG)','color','# Cylinders');
+g.set_title('Fuel economy of new cars between 1970 and 1982');
+figure('Position',[100 100 800 400]);
+g.draw();
 
-% run PCA over peaks to extract features; how many components are
-% visbale? 
-[coeff,score,latent,~,explained] = pca(peaks);
+
+x=randn(1200,2);
+c=cell(length(x),1);
+c(:)={'JLo'};
+
+c2=cell(length(x),1);
+c2(:)={'Mariah Carey'};
+cond={c{:};c2{:}};
+x(:,2)=x(:,2)+10;
+
+clear g5
 figure
-plot(explained, '-*'); % plot percent var explained
-xlabel("Component Number")
-ylabel("Percent Variance Explained (%)")
+g5(1,1)=gramm('x',x','color',cond);
+g5(1,2)=copy(g5(1));
+g5(1,3)=copy(g5(1));
+g5(1,1).stat_bin('geom','stacked_bar'); %Stacked bars option
+g5(1,1).set_title('''stacked_bar''');
+g5(1,2).stat_bin('geom','overlaid_bar'); %Overlaid bar automatically changes bar coloring to transparent
+g5(1,2).set_title('''overlaid_bar''');
+g5(1,3).stat_bin('geom','stairs'); %Default fill is edges
+g5(1,3).set_title('''stairs''');
+g5.set_title('''geom'' options for stat_bin()');
+g5.set_names('x','Number #1 Singles');
+figure('Position',[100 100 800 600]);
+g5.draw();
 
-% lets plot first two components and see how the data scatters
+
+
+clear g
 figure
-scatter(score(:,1), score(:,2), '.')
+g(1,1)=gramm('x',cars.Origin_Region,'y',cars.Horsepower,'color',cars.Cylinders,'subset',cars.Cylinders~=3 & cars.Cylinders~=5);
+g(1,2)=copy(g(1));
+%Averages with confidence interval
+g(1,1).stat_summary('geom',{'bar','black_errorbar'});
+g(1,1).set_title('stat_summary()');
+%Boxplots
+g(1,2).stat_boxplot();
+g(1,2).set_title('stat_boxplot()');
+%These functions can be called on arrays of gramm objects
+g.set_names('x','Origin','y','Horsepower','color','# Cyl');
+g.set_title('Visualization of Y~X relationships with X as categorical variable');
+figure('Position',[100 100 800 550]);
+g.draw();
 
-% now that we have extracted features from the data let us see how they
-% cluster together
 
-% Run K-means clustering 
-opts = statset('Display','final');
-numclust=10; % max number of k
-ctrs = zeros(size(peaks,1), numclust);
-ids = zeros(size(peaks,1), numclust);
-sumd= zeros(1,numclust);
-
-for j=1:numclust
-[ids(:,j)] = kmeans(peaks, j, 'Replicates', 20, 'Options', opts);
-
-end
-
-% find the optimal solution for the best number of clusters
-
-eva_cali = evalclusters(peaks,ids,'CalinskiHarabasz') % evaluate the best number of k clusters
-eva_sil = evalclusters(peaks,ids,'silhouette') % evaluate the best number of k clusters
-eva_Dav = evalclusters(peaks,ids,'DaviesBouldin') % evaluate the best number of clusters
-
-% all three methods returned different numbers, plot the silhouettes
-figure
-silhouette(peaks,ids(:,2))
-figure
-silhouette(peaks,ids(:,3))
-figure
-silhouette(peaks,ids(:,4))
-
-% plot 3 cluster solution in PCA space
-[ids_opt, crit_opt] = kmeans(score, 3, 'Replicates', 20, 'Options', opts); % 3 cluster optimal solution
+% simulate oscilatory data with sin
+fs = 1000; % Sampling frequency (samples per second) 
+dt = 1/fs; % seconds per sample 
+StopTime = 2; % seconds 
+time = (0:dt:StopTime)'; % seconds 
+F = 60; % Sine wave frequency (hertz) 
+osci1 = sin(2*pi*5*time)+ sin(2*pi*10*time);
+osci2 = sin(2*pi*2*time) + sin(2*pi*120*time);
+osci3 = sin(2*pi*F*time)+ sin(2*pi*102*time);
 
 figure
-scatter(score(ids_opt==1,1), score(ids_opt==1,2), '.g')
-hold on;
-scatter(score(ids_opt==2,1), score(ids_opt==2,2), '.m')
-hold on;
-scatter(score(ids_opt==3,1), score(ids_opt==3,2), '.c')
-hold on;
-scatter(crit_opt(1:3,1), crit_opt(1:3,2), 200, 'kX')
-hold on;
-scatter(crit_opt(1:3,1), crit_opt(1:3,2), 200, 'kd')
+g(1,1)=gramm('x',repmat(time,[1,3])','y', [osci1, osci2, osci3]', 'color',{'Osci1', 'Osci2', 'Osci3'});
+%smooth plot 
+g(1,1).geom_line();
+g(1,1).set_title('Periodic --Baseline');
+g(1,1).set_color_options('map','brewer2');
+%These functions can be called on arrays of gramm objects
+g.set_names('x','Frequency (Hz)','y','Log Power');
+g.draw();
 
-
-%%%%%%% REMINDER TO CHNAGE COLOUR OF PLOTS CANNOT SEE
-
-
-
-%Drag race clustering example: 
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% class 6 
-
-   X = randn(8,8);
-   Y = randn(8,8);
-   
-   corr(X,Y)
-   corr2(X,Y)
-   corrcoef(X,Y)
-   
-   
+figure
+g(1,1)=gramm('x',repmat(time,[1,3])','y', [osci1, osci2, osci3]', 'color',{'Osci1', 'Osci2', 'Osci3'});
+%smooth plot 
+g(1,1).geom_line();
+g.facet_grid([], {'Osci1', 'Osci2', 'Osci3'});
+g(1,1).set_title('Periodic --Baseline');
+g(1,1).set_color_options('map','brewer2');
+%These functions can be called on arrays of gramm objects
+g.set_names('x','Frequency (Hz)','y','Log Power');
+%g.axe_property('YLim',[1e-15 1.5e-9]);
+%g.axe_property('XLim',[0 50]);
+g.draw();
