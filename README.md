@@ -35,7 +35,9 @@ Lectures will be over zoom (the link will be sent over email).
 
 Note:
 RPDR data obtained from dragracer package in R
+
 Face images obtained from: https://github.com/NVlabs/ffhq-dataset 
+
 I do not own any of the images used in this repository, they are simply used as examples
 
 
