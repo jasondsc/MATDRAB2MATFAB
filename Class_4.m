@@ -1,8 +1,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%                                                      Class 
-%                                        Plotting graphs in MATLAB
+%                               Class 4 
+%                       Plotting graphs in MATLAB
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -130,6 +130,16 @@ errorbar(x, mean(y),std(y),'-s','MarkerSize',10,...
 % bars sepeartely from the plot!
 
 
+
+RPDR_contestant_demo=readtable('./justafolderwithdata/RPDR_contestant_data.csv');
+RPDR_episode=readtable('./justafolderwithdata/RPDR_episode_data.csv');
+RPDR_contestant=readtable('./justafolderwithdata/RPDR_contestant_score.csv');
+RPDR_winners=readtable('./justafolderwithdata/RPDR_winners.csv');
+
+ winnerindex=ismember(RPDR_contestant_demo.contestant, RPDR_winners.contestant(RPDR_winners.winner==1))
+
+ top3index=ismember(RPDR_contestant_demo.contestant, RPDR_winners.contestant(RPDR_winners.winner==0))
+
  % Bar graphs
  data=[sum(RPDR_contestant.WIN(winnerindex)), sum(RPDR_contestant.HIGH(winnerindex)),...
     sum(RPDR_contestant.LOW(winnerindex)), sum(RPDR_contestant.BTM(winnerindex)); ...
@@ -171,11 +181,6 @@ er.LineStyle = 'none';
 % Another way to represent you data takes advantaged of the distribution of
 % your data. Histograms allow you to visualize your data's shape to make
 % conclusions on what effects might be present and what statistical tests you can prefrom etc
- RPDR_contestant_demo=readtable('./justafolderwithdata/RPDR_contestant_data.csv');
-
- winnerindex=ismember(RPDR_contestant_demo.contestant, RPDR_winners.contestant(RPDR_winners.winner==1))
-
- top3index=ismember(RPDR_contestant_demo.contestant, RPDR_winners.contestant(RPDR_winners.winner==0))
 
  figure
  histogram(RPDR_contestant_demo.age(top3index),6, 'FaceAlpha', 0.5, 'EdgeAlpha', 0.5)
@@ -233,9 +238,6 @@ iris.meas=iris.meas -mean([iris.meas]);
 %% Other fun plotting tools in MATLAB
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-RPDR_episode=readtable('./justafolderwithdata/RPDR_episode_data.csv');
-RPDR_contestant=readtable('./justafolderwithdata/RPDR_contestant_score.csv');
-RPDR_winners=readtable('./justafolderwithdata/RPDR_winners.csv');
 
 % get index of those Queens who won their season and made it to the top 3
  winnerindex=ismember(RPDR_contestant.contestant, RPDR_winners.contestant(RPDR_winners.winner==1))
@@ -273,17 +275,43 @@ Y = [0.5*cos(X), 2*cos(X)];
 figure
 stairs(Y)
 
+
+% Sometimes data, like phases are best represented on a circle rather than
+% a regular graph 
 Fs = 1000;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period       
 L = 1000;             % Length of signal
 t = (0:L-1)*T;        % Time vector
-
 data = sin(2*pi*2*t).*sin(2*pi*10*t) + rand(1,length(t));
+hil=hilbert(data);
 figure
+subplot(1,3,1)
 plot(t, angle(hil))
-figure
+subplot(1,3,2)
+histogram(angle(hil),6)
+subplot(1,3,3)
 hil=hilbert(data);
 polarhistogram(angle(hil),6)
+
+%% Everything is more fun in 3D
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+data=randi(100,100,100,100);
+figure
+scatter3(data(:,1,1), data(1,:,1), data(1,1,:), 'filled')
+
+
+figure
+[X,Y,Z] = sphere(16);
+S = repmat([50,25,10],numel(X),1);
+C = repmat([1,2,3],numel(X),1);
+s = S(:);
+c = C(:);
+x = [0.5*X(:); 0.75*X(:); X(:)];
+y = [0.5*Y(:); 0.75*Y(:); Y(:)];
+z = [0.5*Z(:); 0.75*Z(:); Z(:)];
+scatter3(x,y,z,s,c, 'filled')
+
  
 
 %% Plotting with the Gramm Toolbox
@@ -294,6 +322,14 @@ polarhistogram(angle(hil),6)
 % capacities. Gramm works with a similar syntax to ggplot in R and as such
 % is significantly different than MATLAB's syntax. Below are a few examples
 % of different plots you can make with gramm
+
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    
+   %                                        WARNING YOU NEED TO ADD
+   %                                      GRAMM TO YOUR PATH TO RUN
+   %                                          THE FOLLOWING CODE
+                  
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 load example_data.mat
 
@@ -372,11 +408,12 @@ g(1,1).set_color_options('map','brewer2');
 g.set_names('x','Frequency (Hz)','y','Log Power');
 g.draw();
 
+%clear g
 figure
 g(1,1)=gramm('x',repmat(time,[1,3])','y', [osci1, osci2, osci3]', 'color',{'Osci1', 'Osci2', 'Osci3'});
 %smooth plot 
 g(1,1).geom_line();
-g.facet_grid([], {'Osci1', 'Osci2', 'Osci3'});
+clg.facet_grid([], {'Osci1', 'Osci2', 'Osci3'}');
 g(1,1).set_title('Periodic --Baseline');
 g(1,1).set_color_options('map','brewer2');
 %These functions can be called on arrays of gramm objects
@@ -384,3 +421,13 @@ g.set_names('x','Frequency (Hz)','y','Log Power');
 %g.axe_property('YLim',[1e-15 1.5e-9]);
 %g.axe_property('XLim',[0 50]);
 g.draw();
+
+
+
+
+% exercise 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% plot two normal distributions and move a verticle line (i.e., a
+% criterion) across all integer x values 
+
