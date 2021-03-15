@@ -254,6 +254,7 @@ plot(x,y, '--','LineWidth', 3, 'Color', [0.7 0.7 0.7])
 % see http://mfviz.com/hierarchical-models/ and slide for details
 load('./justafolderwithdata/Iris_2021_data.mat');
 
+% Run linear regression on iris data plot across species
 figure
 subplot(1,2,1)
 scatter(iris_data.SepalLength, iris_data.SepalWidth, 20, categorical(iris_data.Species), 'filled')
@@ -269,15 +270,26 @@ plot(aFitted, bFitted, '--', 'LineWidth', 3, 'Color', [0.4 0.4 0.4])
 xlabel('Sepal Length', 'FontSize', 20);
 ylabel('Sepal Width', 'FontSize', 20);
 
+% as you can notice the line fit across species may represent the best
+% fitting line across ALL data but this does not reflect the actual trends
+% within each species. A much better model would allow the fitted line to
+% vary as a function of species 
 
+% get index of each species, this will be useful later 
 indx_setosa=find(strcmp(iris_data.Species, 'setosa'));
 indx_versicolor=find(strcmp(iris_data.Species, 'versicolor'));
 indx_virginica=find(strcmp(iris_data.Species, 'virginica'));
 
+% run a hierarchical model where each species is given a different
+% intercpet. See slides for details 
+
+% Note that variables outside the () will be FIXED and those inside will be
+% RANDOM, this will be explained in class
 formula         = 'SepalWidth ~SepalLength + (1|Species)';
 tbl             = table(iris_data.SepalLength,iris_data.SepalWidth,iris_data.Species,  'VariableNames',{'SepalLength','SepalWidth','Species'});
 lme             = fitlme(tbl,formula);
 
+% estimate the data for all species 
 rand_eff=lme.randomEffects;
 aFitted1= iris_data.SepalLength(indx_setosa);
 bFitted1= lme.Coefficients.Estimate(1) + iris_data.SepalLength(indx_setosa).*lme.Coefficients.Estimate(2) + rand_eff(1);
@@ -288,6 +300,7 @@ bFitted2= lme.Coefficients.Estimate(1) + iris_data.SepalLength(indx_versicolor).
 aFitted3= iris_data.SepalLength(indx_virginica);
 bFitted3= lme.Coefficients.Estimate(1) + iris_data.SepalLength(indx_virginica).*lme.Coefficients.Estimate(2) + rand_eff(3);
 
+% plot new regression model
 subplot(1,2,2)
 scatter(iris_data.SepalLength, iris_data.SepalWidth, 20, categorical(iris_data.Species), 'filled')
 hold on
@@ -298,7 +311,12 @@ xlabel('Sepal Length', 'FontSize', 20);
 ylabel('Sepal Width', 'FontSize', 20);
 hold off;
 
+% What do you notice about this model. How are the interceopts different
+% across species? How are the slopes different across species? How is this
+% model better? how is it worse?
 
+
+% Lets go even further and add random slopes
 formula         = 'SepalWidth ~ SepalLength+ (SepalLength| Species) ';
 tbl             = table(iris_data.SepalLength,iris_data.SepalWidth,iris_data.Species,  'VariableNames',{'SepalLength','SepalWidth','Species'});
 lme             = fitlme(tbl,formula);
@@ -313,6 +331,7 @@ bFitted2= lme.Coefficients.Estimate(1) + iris_data.SepalLength(indx_versicolor).
 aFitted3= iris_data.SepalLength(indx_virginica);
 bFitted3= lme.Coefficients.Estimate(1) + iris_data.SepalLength(indx_virginica).*lme.Coefficients.Estimate(2) + rand_eff(5) + rand_eff(6)*iris_data.SepalLength(indx_virginica);
 
+% plot effects of random slopes
 subplot(1,2,2)
 scatter(iris_data.SepalLength, iris_data.SepalWidth, 20, categorical(iris_data.Species), 'filled')
 hold on
@@ -323,8 +342,12 @@ xlabel('Sepal Length', 'FontSize', 20);
 ylabel('Sepal Width', 'FontSize', 20);
 hold off;
 
+% what is different now from the last model? How is this one better and
+% worse? When would you use this model in comparison to the random
+% intercepts? What about the non-hierarchical model?
 
 
+% some examples of more complex heirarchical models 
 date=readtable('./justafolderwithdata/SpeedDatingData.csv');
 
 formula         = 'attr_o ~samerace+ age_o+ age+ income+ exphappy + expnum + (1|Participantid)';
@@ -341,8 +364,17 @@ tbl             = table(date.wave,date.samerace,date.age_o, date.age, date.incom
 glme             = fitglme(tbl,formula,'Distribution','binomial');
 
 
-%% aic and bic
+% exercise 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% using everything you've learnt build a complex model with the speed
+% dating dataset with the goal of explaining the most variance with the
+% LEAST number of predictors! 
+
+%%  Model Fit & Selection Reprised: AIC & BIC
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% let us fit a bunch of comepting models 
 date=readtable('./justafolderwithdata/SpeedDatingData.csv');
 
 formula         = 'attr_o ~samerace+ age_o+ age+ (1|Participantid)';
@@ -356,8 +388,13 @@ lme2             = fitlme(tbl,formula);
 formula         = 'attr_o ~samerace+ age_o+ age+ income+ exphappy + expnum + (1|Participantid)';
 tbl             = table(date.ParticipantId,date.samerace,date.age_o, date.age, date.income,date.attr_o, date.exphappy, date.expnum, 'VariableNames',{'Participantid','samerace','age_o', 'age', 'income', 'attr_o', 'exphappy', 'expnum'});
 lme3             = fitlme(tbl,formula);
+% note that normally we test models by adding A SINGLE predictor at a time,
+% this is done because we can directly compare the effect of adding it to
+% the fit rather than trying to change a bunch of things at once 
 
 
+% now let us compute their AIC and BIC
+% See lecture for details 
 logL = [lme1.LogLikelihood; lme2.LogLikelihood; lme3.LogLikelihood];
 numParam = [lme1.NumPredictors; lme2.NumPredictors; lme3.NumPredictors];
 numObs = length(date.ParticipantId);
@@ -366,18 +403,42 @@ aic=(-2*logL + 2*numParam)
 bic=(-2*logL + numParam*log(numObs))
 
 
+% exercise 4
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% of the models we tested which is best and why? Do AIC AND BIC agree? If
+% not why would this be? 
+
+% take your really complex model and test it on the same data. What
+% happens? (HINT use the predict function in MATLAB). What happens when you
+% run your complex regression on a subset of data and save the rest for
+% prediction?
+
 %%  Support Vector machines
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% load and prep data for SVM classifier 
+% data for classifers are typically saved as a testing and training set,
+% this is done by dividing the original dataset into smaller sets. There
+% are many schemes and convensions for this. Do some research on what is
+% typical in your field. 
+
 tbl=table2array(tbl);
 [train, idx]=datasample(tbl, floor(2*length(tbl)./3), 'Replace', false);
 test=tbl(setdiff(1:length(tbl),idx),:);
 classes_train=date.match(idx);
 classes_test=date.match(setdiff(1:length(tbl),idx));
 
-%Train the SVM Classifier
+%Train the SVM Classifier with defaults 
 cl = fitcsvm(train,classes_train)
 sum(classes_test==predict(cl, test))./length(classes_test)
 
+
+% since we randomly split the data into a training and testing set, this
+% can give us different effects if we run it again. Try running the above
+% code again and see what accuracy you get.
+
+% Typically you would run multiple iterations of the training and testing
+% such that any biases from splitting your data can be accounted for
 numiter=50;
 % cross validation
 for i=1:numiter
@@ -393,4 +454,5 @@ acc(i)=sum(classes_test==predict(cl, test))./length(classes_test);
 end
 
 
-% do this across time to generalize etc 
+% SVMs trained on a specific dataset (i.e, at one time point) can also be
+% used to predict other time points. This is called temporal generalization
