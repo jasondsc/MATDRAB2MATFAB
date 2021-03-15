@@ -1,8 +1,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%                                                      Class 3
-%                                              Signal Processing
+%                                Class 3
+%                            Signal Processing
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -26,25 +26,25 @@ rand(1,10)
 
 % simulate oscilatory data with sin
 fs = 1000; % Sampling frequency (samples per second) 
- dt = 1/fs; % seconds per sample 
- StopTime = 3; % seconds 
- t = (0:dt:StopTime)'; % seconds 
- F = 60; % Sine wave frequency (hertz) 
- data = sin(2*pi*F*t);
- figure
- plot(t,data)
+dt = 1/fs; % seconds per sample 
+StopTime = 3; % seconds 
+t = (0:dt:StopTime)'; % seconds 
+F = 60; % Sine wave frequency (hertz) 
+data = sin(2*pi*F*t);
+figure
+plot(t,data)
 
 % add noise
- data = sin(2*pi*F*t)+rand(length(data),1);
- plot(t,data)
- 
- % nest signals 
- F2=10;
-data = sin(2*pi*F*t)+rand(length(data),1) +  sin(2*pi*F2*t);
- plot(t,data)
+data = sin(2*pi*F*t)+rand(length(data),1);
+plot(t,data)
 
- 
- % exercise 1
+% nest signals 
+F2=10;
+data = sin(2*pi*F*t)+rand(length(data),1) +  sin(2*pi*F2*t);
+plot(t,data)
+
+
+% exercise 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %try generating random numbers between -1 and 1 using rand
@@ -85,14 +85,14 @@ axis tight;
 xlabel('time');
 ylabel('Micro Volts ');
 title('Unfiltered Single Electrode Spike Recording ');
-                                                                                     
+
 subplot(2,1,2)
 plot(smoothdata(raw_spike_data)) % plot data to visualize spikes and time series
 axis tight; 
 xlabel('time');
 ylabel('Micro Volts ');
 title('Unfiltered Single Electrode Spike Recording ');
-                                                                                     
+
 
 % detrend works by removing linear trend in data 
 fs = 1000; % Sampling frequency (samples per second) 
@@ -217,7 +217,7 @@ axis tight;
 xlabel('time');
 ylabel('Micro Volts ');
 title('Unfiltered Single Electrode Spike Recording '); % clear slow drifts in data that need to be removed
-           
+
 % create and apply bandpass butter worth filter
 [b,a] = butter(3,[500/(sr/2) 8000/(sr/2)], 'bandpass'); % create butterworth filter 
 filtered_data=filter(b,a,raw_spike_data); % apply butter worth filter 
@@ -322,7 +322,7 @@ pause(2)
 soundsc(outhi)
 
 
- % exercise 2
+% exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %try highpass and lowpass filtering the electrophysiology data into
 % fast and slow oscilatory components. Try adding them back together and
@@ -342,32 +342,32 @@ data=zeros(1000,1);
 data = sin(2*pi*F*t) + rand(length(data),1)' +  sin(2*pi*F2*t) + 1/length(data)*[1:length(data)];
 figure
 plot(t,data)
- 
+
 % get the hilbert transform of data
- hil=hilbert(data); % notice that the data is stored as complex not int or double
- 
- subplot(1,2,1)
- plot(t,data)
- hold on
-  plot(t,abs(hil), '-r')
-  subplot(1,2,2)
- plot(t,angle(hil))
+hil=hilbert(data); % notice that the data is stored as complex not int or double
+
+subplot(1,2,1)
+plot(t,data)
+hold on
+plot(t,abs(hil), '-r')
+subplot(1,2,2)
+plot(t,angle(hil))
 
 
 data = sin(2*pi*2*t).*sin(2*pi*F*t) ;
 figure
 plot(t,data)
- 
- hil=hilbert(data);
- 
- subplot(1,2,1)
- plot(t,data)
- hold on
-  plot(t,abs(hil), '-r')
-  subplot(1,2,2)
- plot(t,angle(hil))
- 
- hil=hilbert(raw_spike_data);
+
+hil=hilbert(data);
+
+subplot(1,2,1)
+plot(t,data)
+hold on
+plot(t,abs(hil), '-r')
+subplot(1,2,2)
+plot(t,angle(hil))
+
+hil=hilbert(raw_spike_data);
 figure
 subplot(1,2,1)
 plot(raw_spike_data)
@@ -375,7 +375,7 @@ hold on
 plot(abs(hil), '-r')
 subplot(1,2,2)
 plot(angle(hil))
- 
+
 
 %% Finding peaks 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -421,7 +421,7 @@ xlabel('time');
 ylabel('Micro Volts ');
 title('Filtered Single Electrode Spike Recording ');
 
- % exercise 3
+% exercise 3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %try using the mean, median, and std of the data determine the cutoff for

@@ -1,8 +1,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%                                                   Class 1 & 2
-%                                               Basics of MATLAB 
+%                                 Class 1 & 2
+%                               Basics of MATLAB 
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -24,7 +24,7 @@ clc                                                     %clears command window
 
 
 
-%%                                          Variables 
+%%  Variables 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 var=1;
@@ -35,31 +35,31 @@ max([var, var2])
 [maxA, location]=max(var3);
 plot(var3, '-or')
 
- help plot
- help pca
- 
- bool=true;
- ints=1:12;
- bools= boolean([ 1 0 1 0 1 1 1 1 0 1 0 1]);
- ints(bools)
- 
- bool1=[1 0 1 0 1]
- bool2=[1 0 0 1 1]
- 
+help plot
+help pca
+
+bool=true;
+ints=1:12;
+bools= boolean([ 1 0 1 0 1 1 1 1 0 1 0 1]);
+ints(bools)
+
+bool1=[1 0 1 0 1]
+bool2=[1 0 0 1 1]
+
 bool1==bool2
 bool1 & bool2
 bool1 | bool2
 bool1(1) && bool2(1)
 bool1(2) || bool2(2)
- 
- % there are different ways to store and express numbers (i.e., numerics) 
- num=single(2)
- num2=double(2)
- num3=uint8(2)
- 
- cast(num, 'double')
- 
- %%                                          Strings 
+
+% there are different ways to store and express numbers (i.e., numerics) 
+num=single(2)
+num2=double(2)
+num3=uint8(2)
+
+cast(num, 'double')
+
+%%  Strings 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % differences between strings and cahrs
@@ -95,7 +95,7 @@ new_secret=strjoin({secret_message{5}(5), secret_message{1}(2), secret_message{1
 secret_message=strcat(string2, song{1}(16),  'Want', new_secret,whenDoUgetPresents ,int2str(15),splitstr{3})
 
 
-%%                                          Arrays 
+%% Arrays 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Making an array
@@ -121,7 +121,7 @@ a(1,1:5) % 1st element of the 1st 5 cols
 multi=randi([-100,100],30,121,64); % make random matrix of intergers 
 
 
-%%                                          File I/O Basics
+%%  File I/O Basics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % useful functions for file navigation:
@@ -165,7 +165,7 @@ csvwrite('image.txt', mean(image,3))
 % % use the import tool in the HOME tab to read data of many file formats
 
 
-%%                                          Exercises class 1
+%%  Exercises class 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % 1) read the RPDR_contestant_data and compute the mean of all contestants 
@@ -176,12 +176,14 @@ csvwrite('image.txt', mean(image,3))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-%                                              class 2
+%                        `         Class 2
+%                       Objects, Loops, Conditionals 
+%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%                                          Set Operators
+%% Set Operators
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -217,11 +219,12 @@ setdiff(set2,set1)
 
 unique([set1;set2])
 
-%%                                          Data Structures  
+%% Data Structures  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%table!
+% tables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 listoffiles=dir("./");
 
 drag_race=readtable('./RPDR_contestant_data.csv')
@@ -234,7 +237,8 @@ full_drag=[drag_race, score(:,3:7)]
 StructArray = table2struct(full_drag);
 
 
-%Struct
+% structs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % used in object oriented programming, useful when you want an object to
 % have several features
 
@@ -247,7 +251,8 @@ student(1).buyJoanneoniTunes= true;
 student(1).single=true;
 student(1).thesisdata=rand(100,100);
 
-%Cells
+% cells
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % are like containers that hold different tupe of info and of different
 % sizes!!!!
 c={randi([0,100],10,10);randi([0,100],5,5);randi([0,100],2,2); "MARIAH CAREY RULES"};
@@ -269,62 +274,66 @@ C = {'Monday','Tuesday','Wednesday','Thursday','Friday'}
 cellfun(@(x) x(1:3),C,'UniformOutput',false)
 
 c={randi([0,100],10,10),randi([0,100],5,5),randi([0,100],2,2);...
-    randi([0,100],30,10),randi([0,100],5,25),randi([0,100],22,2)}
+randi([0,100],30,10),randi([0,100],5,25),randi([0,100],22,2)}
 
 cellfun(@mean, c,'UniformOutput',false)
 
 
-%%                                          Loops and Conditionals
+%% Loops and Conditionals
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% if
+% Conditionals if
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 a=randi(100,1);
 
 if a< 30
-    disp("she's small")
+disp("she's small")
 elseif a <70
-    disp("she's okay")
+disp("she's okay")
 else
-    disp("SHES HUGE")
+disp("SHES HUGE")
 end
 
 
-% Switch
+% Conditionals Switch
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [dayNum, dayString] = weekday(date, 'long', 'en_US');
 switch dayString
-    case 'Monday'
-        disp("UGH Monday")
-    case 'Tuesday'
-        disp("I'm already tired")
-    case 'Wednesday'
-        disp("HUMP DAY")
-    case 'Thursday'
-        disp("I HAVE CLASS TODAY")
-    case 'Friday'
-        disp("FRIYAY")
-    otherwise
-        disp('YAS BITCH WERK')
+case 'Monday'
+disp("UGH Monday")
+case 'Tuesday'
+disp("I'm already tired")
+case 'Wednesday'
+disp("HUMP DAY")
+case 'Thursday'
+disp("I HAVE CLASS TODAY")
+case 'Friday'
+disp("FRIYAY")
+otherwise
+disp('YAS BITCH WERK')
 end
 
 % For Loop
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i=1:2:100
-    if mod(i,9)==0
-        disp(i)
-        disp(" is a multiple of 9!!")
-    end
+if mod(i,9)==0
+disp(i)
+disp(" is a multiple of 9!!")
+end
 end
 
 % While loop
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 n=1;
 nfactorial=1;
 while nfactorial <100
-    n=n+1;
-    nfactorial= nfactorial*n;
+n=n+1;
+nfactorial= nfactorial*n;
 end
 
 
 
-%%                                          Exercises class 2
+%% Exercises class 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % 1) move to the data_from_sub directory, loop through files, select the ones you
@@ -335,13 +344,13 @@ files= dir('./data_from_sub/sub*.mat');
 data_placeholder=[];
 
 for i=1:length(files)
-    
-    if (mod(str2num( files(i,1).name(5:7) ),2)~=0)
-        disp(strcat(files(i,1).name, "   SHES ODD"))
-        load(strcat('./data_from_sub/',files(i,1).name));
-        data_placeholder(:,:)=data;
-        
-    end
+
+if (mod(str2num( files(i,1).name(5:7) ),2)~=0)
+disp(strcat(files(i,1).name, "   SHES ODD"))
+load(strcat('./data_from_sub/',files(i,1).name));
+data_placeholder(:,:)=data;
+
+end
 end
 
 histogram(reshape(data_placeholder,1,size(data_placeholder,1)*size(data_placeholder,2)), 'FaceColor','red')
