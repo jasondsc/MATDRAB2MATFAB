@@ -39,6 +39,7 @@ help plot
 help pca
 
 bool=true;
+bool=false;
 ints=1:12;
 bools= boolean([ 1 0 1 0 1 1 1 1 0 1 0 1]);
 ints(bools)
@@ -46,7 +47,7 @@ ints(bools)
 bool1=[1 0 1 0 1]
 bool2=[1 0 0 1 1]
 
-bool1==bool2
+bool1== bool2
 bool1 & bool2
 bool1 | bool2
 bool1(1) && bool2(1)
@@ -63,13 +64,16 @@ cast(num, 'double')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % differences between strings and cahrs
-%secret_message = ['Homer';  'Olaf' ; 'Nathan'; 'Ethan'; 'Yusef']
+secret_message = ['Homer';  'Olaf' ; 'Nathan'; 'Ethan'; 'Yusef']
 secret_message = ["Homer";  "Olaf" ; "Nathan"; "Ethan"; "Yusef"]
+
+secret_message=['hel'; 'ooo']
 
 whenDoUgetPresents="Christmas"
 
-string= 'My' ; string(2)
+word1= 'My' ; word1(2)
 string2= "All" ; string2{1}(2)
+string3= "hello my name is"; string3{1}
 
 word1 ='We'
 word2='belong'
@@ -111,6 +115,9 @@ z.*z % IS DIFFERENT THAN ' * '
 
 z*z % THIS IS THE MATRIX PRODUCT OR DOT PRODUCT
 
+y=ones(1,10)+13;
+z*y'
+
 % MATRIX AND ARRAYS
 a=randi([0,100],10,10); % make random matrix of intergers 
 a(1,10) % index first row, 10th col
@@ -119,6 +126,8 @@ a(1,1:5) % 1st element of the 1st 5 cols
 
 % Mili-dimensional arryas
 multi=randi([-100,100],30,121,64); % make random matrix of intergers 
+
+multi=randi([-100,100],30,121,64,10); % make random matrix of intergers 
 
 
 %%  File I/O Basics
@@ -135,7 +144,7 @@ cd() % changes your directory
 
 % moving directory and loading files !!!!
 dir("./justafolderwithdata/")
-load("./justafolderwithdata/MLM_demo.mat")
+load("./justafolderwithdata/raw_spike_data.mat")
 clear all
 close all
 
@@ -143,7 +152,7 @@ cd("./justafolderwithdata/")
 load('raw_spike_data.mat')
 save("temp_data.mat") % saves workspace to file 
 
-image=imread('./ladygaga5.jpg');
+image=imread('./MemeFolder/ladygaga5.jpg');
 imagesc(image)
 
 table=readtable('./justafolderwithdata/RPDR_contestant_score.csv');
@@ -168,10 +177,23 @@ csvwrite('image.txt', mean(image,3))
 %%  Exercises class 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% 1) read the RPDR_contestant_data and compute the mean of all contestants 
+% 1) read the RPDR_contestant_data and compute the mean age of all contestants 
+
+table=readtable('./justafolderwithdata/RPDR_contestant_data.csv');
+
+mean(table2array(table(:,4)))
+
 % 2) How many special episodes were there on RPDR? How many Finale
 % episodes? 
+
+epi=readtable('./justafolderwithdata/RPDR_episode_data.csv');
+
+sum(table2array(epi(:,5)))
+
 % 3) What was the largest number of epsidoes for a season?
+% Note you need to read about cells and for loops below !
+
+% hint use strcmp()
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -200,11 +222,11 @@ union(intersect(set1,set2),setdiff(set1,set2))
 
 
 set1 = {"homer";  "Olaf" ; "Nathan"; "David"; "Yusef"}
-
 set2 = {"Homer";  "Nathan"; "Ethan"; "Yusef"}
+set3= ["Homer";  "Nathan"; "Ethan"; "Yusef"]
 
 ismember("homer",set1)
-
+ismember("homer", set3)
 
 % Note that for strings it must be a string ARRAY, character VERCTOR or a
 % CELL ARRAY of chars
@@ -227,11 +249,11 @@ unique([set1;set2])
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 listoffiles=dir("./");
 
-drag_race=readtable('./RPDR_contestant_data.csv')
+drag_race=readtable('./justafolderwithdata/RPDR_contestant_data.csv')
 [uniquenames, ids, ~]=unique(drag_race.contestant)
 drag_race=drag_race(ids,:)
 drag_race = sortrows(drag_race,'contestant','ascend');
-score=readtable('./RPDR_contestant_score.csv')
+score=readtable('./justafolderwithdata/RPDR_contestant_score.csv')
 sum(strcmp(score.contestant, drag_race.contestant))
 full_drag=[drag_race, score(:,3:7)]
 StructArray = table2struct(full_drag);
@@ -268,7 +290,7 @@ c={randi([0,100],10,10),randi([0,100],5,5),randi([0,100],2,2)}
 
 cellfun(@mean, c)
 
-cellfun(@mean, c,'UniformOutput',false)
+cellfun(@mean, c, 'UniformOutput', false)
 
 C = {'Monday','Tuesday','Wednesday','Thursday','Friday'}
 cellfun(@(x) x(1:3),C,'UniformOutput',false)
