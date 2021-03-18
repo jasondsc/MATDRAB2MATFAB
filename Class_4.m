@@ -49,6 +49,40 @@ caxis([50 200])
 % the colour map you pick and how you center it can over or under emphasize
 % effects. Remeber to pick colour bars that are readable for everyone.
 
+usa=readtable('./justafolderwithdata/USA_election_data.csv');
+
+figure
+subplot(2,3,1)
+plot(usa.Year ,usa.PopularVote)
+hold on
+plot(usa.Year ,usa.ElectorialCollege)
+yline(0.5)
+
+subplot(2,3,2)
+bar(usa.Year ,[usa.PopularVote,usa.ElectorialCollege])
+hold on
+yline(0.5)
+
+subplot(2,3,3)
+bar(usa.Year(1:6) ,[usa.PopularVote(1:6),usa.ElectorialCollege(1:6)])
+hold on
+yline(0.5)
+
+subplot(2,3,4)
+bar(usa.Year(7:11) ,[usa.PopularVote(7:11),usa.ElectorialCollege(7:11)])
+hold on
+yline(0.5)
+
+subplot(2,3,5)
+bar(usa.Year(12:end) ,[usa.PopularVote(12:end),usa.ElectorialCollege(12:end)])
+hold on
+yline(0.5)
+
+subplot(2,3,6)
+bar(usa.Year(12:end) ,[usa.PopularVote(12:end),usa.ElectorialCollege(12:end)])
+hold on
+ylim([0.4 0.7])
+
 
 %% Plotting basics with plot()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
