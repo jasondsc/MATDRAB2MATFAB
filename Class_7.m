@@ -137,11 +137,27 @@ hold on;
 % Try and fit a normal dist for your random data X
 [est_mu, est_sigma]=normfit(X)
 
+% how about another algorithm for searching parameter spaces?
+% Fmin search is commonly used to solve equations
+
+% first you need to define the function (or surface) we want to find the
+% minimum of (i.e., the log likelihood function) 
+LL = @(u)normlike([u(1),u(2)],X); 
+MLES = fminsearch(LL,[1,2]) % search the space (i.e., function) using the starting values
+
+% try switching the starting values X0 [1 ,2] what happens to the end
+% result?
+
 % find location of closest value of estimated param
 [temp location_x]=min(abs(A1(1,:)-est_mu));
 [temp location_y]=min(abs(A2(:,1)-est_sigma));
 % plot the estimated value of the param from the fitting
 plot3(A1(1,location_x), A2(location_y,1), logL(location_x,location_y), 'ro','MarkerSize',10,'MarkerFaceColor','r');
+
+% find location of closest value of estimated param
+[temp location_x]=min(abs(A1(1,:)-MLES(1)));
+[temp location_y]=min(abs(A2(:,1)-MLES(2)));
+plot3(A1(1,location_x), A2(location_y,1), logL(location_x,location_y), 'mo','MarkerSize',10,'MarkerFaceColor','r');
 
 % What do you notice from the above graph? Did the algorithm do a good job
 % at fitting the data? What happens if you expand the parameter space? What
@@ -149,4 +165,30 @@ plot3(A1(1,location_x), A2(location_y,1), logL(location_x,location_y), 'ro','Mar
 % better? Is there a balance between the param space and the quantity of
 % data 
 
+
+% exercise 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Load the online dating dataset and fit a model (polynomial) to the
+% relationship between profile visits and languages spoken. What is the best fitting
+% model? What is the order of the relationship? Do all error metrics show
+% similar findings? 
+
+dating=readtable('./justafolderwithdata/modified_lovoo_v3_users_instances.csv');
+
+dating=dating(:,[2:8 10:end-1]);
+
+figure
+scatter(dating.counts_profileVisits, dating.age)
+
+[f, gof, output]=fit(dating.counts_profileVisits, dating.age, strcat('poly', int2str(1)))
+
+
+% Try removing outliers from the data and refit the models, what is
+% different? 
+
+
+rm_dating=rmoutliers([dating.counts_profileVisits, dating.age])
+figure
+scatter(rm_dating(:,1), rm_dating(:,2))
 

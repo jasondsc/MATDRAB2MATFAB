@@ -129,6 +129,12 @@ multi=randi([-100,100],30,121,64); % make random matrix of intergers
 
 multi=randi([-100,100],30,121,64,10); % make random matrix of intergers 
 
+% Reshaping a Matrix
+a=randi([0,100],10,10); % make random matrix of intergers 
+reshape(a, [10,2,5])
+reshape(a, [100,1])
+reshape(a, [2,50])
+
 
 %%  File I/O Basics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
