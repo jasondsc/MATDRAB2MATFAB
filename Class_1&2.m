@@ -199,6 +199,12 @@ sum(table2array(epi(:,5)))
 % 3) What was the largest number of epsidoes for a season?
 % Note you need to read about cells and for loops below !
 
+c={'S01','S02','S03','S04'};
+for i=1:4
+     max(epi.episode(strcmp(epi.season, c{1,i})))
+     
+end
+
 % hint use strcmp()
 
 
@@ -222,10 +228,13 @@ ismember(1,set1)
 ismember([1,2,3,4,5],set1)
 
 intersect(set1,set2)
+intersect(set2,set1)
 setdiff(set1,set2)
+setdiff(set2,set1)
 
 union(intersect(set1,set2),setdiff(set1,set2))
 
+unique(set1)
 
 set1 = {"homer";  "Olaf" ; "Nathan"; "David"; "Yusef"}
 set2 = {"Homer";  "Nathan"; "Ethan"; "Yusef"}
@@ -264,6 +273,7 @@ sum(strcmp(score.contestant, drag_race.contestant))
 full_drag=[drag_race, score(:,3:7)]
 StructArray = table2struct(full_drag);
 
+table2array(score(:,3:7))
 
 % structs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -279,12 +289,41 @@ student(1).buyJoanneoniTunes= true;
 student(1).single=true;
 student(1).thesisdata=rand(100,100);
 
+student(2).name="Joe";
+student(2).age=25;
+student(2).GPA= 3.97;
+student(2).FavMariahSong= "We belong together";
+student(2).buyJoanneoniTunes= true;
+student(2).single=true;
+student(2).thesisdata=rand(100,100);
+
+struct2table(student)
+
+student(3).name=44;
+student(3).age=25;
+student(3).GPA= 3.97;
+student(3).FavMariahSong= "We belong together";
+student(3).buyJoanneoniTunes= true;
+student(3).single=true;
+student(3).thesisdata=rand(100,100);
+
+struct2table(student)
+
+study.drag_race=drag_race;
+study.sampling_rate=1000;
+study.eeg=rand(100,1000);
+
+save('filename.mat', 'study')
+
 % cells
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % are like containers that hold different tupe of info and of different
 % sizes!!!!
-c={randi([0,100],10,10);randi([0,100],5,5);randi([0,100],2,2); "MARIAH CAREY RULES"};
+c={randi([0,100],10,10), 'hello';randi([0,100],5,5), 2;randi([0,100],2,2),2000; "MARIAH CAREY RULES", true};
 
+cellplot(c)
+
+c={student;study;drag_race; 'MARIAH CAREY RULES'};
 cellplot(c)
 
 c={randi([0,100],10,1),randi([0,100],5,1),randi([0,100],2,1)}
@@ -315,48 +354,79 @@ cellfun(@mean, c,'UniformOutput',false)
 a=randi(100,1);
 
 if a< 30
-disp("she's small")
+    disp("she's small")
 elseif a <70
-disp("she's okay")
+    disp("she's okay")
 else
-disp("SHES HUGE")
+    disp("SHES HUGE")
 end
 
+if a< 30
+        disp("she's small")
+else
+    disp("SHES HUGE")
+end
+
+if a< 30
+    disp("she's small")
+elseif a <70
+    disp("she's okay")
+end
 
 % Conditionals Switch
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [dayNum, dayString] = weekday(date, 'long', 'en_US');
+dayString='Oct';
+tic
 switch dayString
 case 'Monday'
-disp("UGH Monday")
+    disp("UGH Monday")
 case 'Tuesday'
-disp("I'm already tired")
+    disp("I'm already tired")
 case 'Wednesday'
-disp("HUMP DAY")
+    disp("HUMP DAY")
 case 'Thursday'
-disp("I HAVE CLASS TODAY")
+    disp("I HAVE CLASS TODAY")
 case 'Friday'
-disp("FRIYAY")
+    disp("FRIYAY")
+case 'Saturday'
+    disp("weekend")
+case 'Sunday'
+    disp("weekend")
 otherwise
-disp('YAS BITCH WERK')
+    disp('YAS BITCH WERK')
 end
-
+toc
 % For Loop
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for i=1:2:100
-if mod(i,9)==0
-disp(i)
-disp(" is a multiple of 9!!")
+arr=rand(1,100);
+
+for i= 1:2:100
+        if mod(i,9)==0
+            disp(i)
+            disp(" is a multiple of 9!!")
+        end
 end
+
+for i= 1:2:100
+    
+    for j= 1:100
+        if mod(i,9)==0
+            disp(i)
+            disp(" is a multiple of 9!!")
+        end
+    end
 end
+
 
 % While loop
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 n=1;
 nfactorial=1;
-while nfactorial <100
-n=n+1;
-nfactorial= nfactorial*n;
+
+while nfactorial <500
+    n=n+1;
+    nfactorial= nfactorial*n;
 end
 
 
@@ -367,18 +437,18 @@ end
 % 1) move to the data_from_sub directory, loop through files, select the ones you
 % want, open the file, extract the data, and save it! Plot a histogram of
 % data
-
+cd('./justafolderwithdata/')
 files= dir('./data_from_sub/sub*.mat');
 data_placeholder=[];
 
 for i=1:length(files)
 
-if (mod(str2num( files(i,1).name(5:7) ),2)~=0)
-disp(strcat(files(i,1).name, "   SHES ODD"))
-load(strcat('./data_from_sub/',files(i,1).name));
-data_placeholder(:,:)=data;
+    if (mod(str2num( files(i,1).name(5:7) ),2)~=0)
+        disp(strcat(files(i,1).name, "   SHES ODD"))
+        load(strcat('./data_from_sub/',files(i,1).name));
+        data_placeholder(:,:)=data;
 
-end
+    end
 end
 
 histogram(reshape(data_placeholder,1,size(data_placeholder,1)*size(data_placeholder,2)), 'FaceColor','red')
@@ -387,5 +457,7 @@ histogram(reshape(data_placeholder,1,size(data_placeholder,1)*size(data_placehol
 % 2) using the full_drag table, compute how many different cities are
 % represented on drag race
 
+
 % 3) using the full_drag table, compute a histogram of the age of
 % participants
+
