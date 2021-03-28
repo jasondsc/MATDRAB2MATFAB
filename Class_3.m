@@ -6,6 +6,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Note that you will need the Signal Processing Toolbox for some of the
+% function
 clear all
 close all
 
@@ -23,6 +25,10 @@ randi(100, [1,10])
 randi(100, [10])
 rand(10)
 rand(1,10)
+
+% simulate data based on distributions
+X = normrnd(1,2,1e3,1); % mu, sigma and how many samples 
+X = gamrnd(1,2,1e3,1); % shape and scale, sample size
 
 % simulate oscilatory data with sin
 fs = 1000; % Sampling frequency (samples per second) 
@@ -158,13 +164,31 @@ title('Single-Sided Amplitude Spectrum of X(t)')
 xlabel('f (Hz)')
 ylabel('|P1(f)|')
 
+% repeat the same process without the random noise
+Y = fft(S);
 
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+
+
+f = Fs*(0:(L/2))/L;
+figure
+subplot(1,2,1)
+plot(X)
+subplot(1,2,2)
+plot(f,P1) 
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
+% let us try another signal 
 S = 0.7*sin(2*pi*33*t) + sin(2*pi*153*t) + 10*sin(2*pi*222*t);
 X = S + 2*randn(size(t));
 
 Y = fft(X);
 
-P2 = abs(Y/L);
+P2 = abs(Y/L); % P2 is the two sided spectrum (we only want a one sided spectrum) 
 P1 = P2(1:L/2+1);
 P1(2:end-1) = 2*P1(2:end-1);
 
@@ -178,6 +202,27 @@ title('Single-Sided Amplitude Spectrum of X(t)')
 xlabel('f (Hz)')
 ylabel('|P1(f)|')
 
+% try taking an fft of an image, what would the frequency space of an image
+% look like? 
+image=imread('./MemeFolder/ladygaga5.jpg'); % read in image to MATLAB
+image=mean(double(image),3);
+Y = fft2(image);
+figure
+subplot(1,2,1)
+imagesc(image)
+subplot(1,2,2)
+imagesc(log(abs(fftshift(Y))))
+
+image=imread('./MemeFolder/joanne.jpg'); % read in image to MATLAB
+image=mean(double(image),3);
+Y = fft2(image);
+figure
+subplot(1,2,1)
+imagesc(image)
+subplot(1,2,2)
+imagesc(log(abs(fftshift(Y))))
+
+% PSD using the welch method
 pwelch(X)
 
 S = 0.7*sin(2*pi*33*t) + sin(2*pi*153*t) + 10*sin(2*pi*222*t);
@@ -255,10 +300,10 @@ title('Filtered Single Electrode Spike Recording ');
 % lets try FIR filters 
 load chirp % load data
 Fs=8192;
-t = (0:length(y)-1)/Fs;
+t = (0:length(y)-1)/(Fs/2);
 
 %create filter for data
-bhi = fir1(34,100/Fs,'low');
+bhi = fir1(34,100/(Fs/2),'low');
 freqz(bhi,1)
 outhi = filter(bhi,1,y); % filter data
 
@@ -280,7 +325,7 @@ pause(2)
 soundsc(outhi)
 
 
-bhi = fir1(34,[100/Fs 1000/Fs ],'bandpass');
+bhi = fir1(34,[100/(Fs/2) 1000/(Fs/2) ],'bandpass');
 freqz(bhi,1)
 
 outhi = filter(bhi,1,y);
@@ -301,7 +346,7 @@ pause(2)
 soundsc(outhi)
 
 
-bhi = fir1(34,[100/Fs 5000/Fs ],'bandpass');
+bhi = fir1(34,[100/(Fs/2) 4000/(Fs/2) ],'bandpass');
 freqz(bhi,1)
 
 outhi = filter(bhi,1,y);
@@ -321,6 +366,41 @@ soundsc(y)
 pause(2)
 soundsc(outhi)
 
+% butterworth filters are commonly used in neuroscience 
+
+fc1 = 30;
+fc2 = 300;
+fs = 1000;
+
+[b,a] = butter(6,[fc1/(fs/2) fc2/(fs/2)]);
+figure
+freqz(b,a) 
+
+% what happend when you change the filter order?
+fc1 = 30;
+fc2 = 300;
+fs = 1000;
+
+[b,a] = butter(12,[fc1/(fs/2) fc2/(fs/2)]);
+figure
+freqz(b,a) 
+
+fc1 = 30;
+fc2 = 300;
+fs = 1000;
+
+[b,a] = butter(2,[fc1/(fs/2) fc2/(fs/2)]);
+figure
+freqz(b,a) 
+
+
+fc1 = 30;
+fc2 = 300;
+fs = 1000;
+
+[b,a] = butter(20,[fc1/(fs/2) fc2/(fs/2)]);
+figure
+freqz(b,a) 
 
 % exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -337,6 +417,8 @@ Fs = 1000;            % Sampling frequency
 T = 1/Fs;             % Sampling period       
 L = 1000;             % Length of signal
 t = (0:L-1)*T;        % Time vector
+F = 60; % Sine wave frequency (hertz) 
+F2=10;
 
 data=zeros(1000,1);
 data = sin(2*pi*F*t) + rand(length(data),1)' +  sin(2*pi*F2*t) + 1/length(data)*[1:length(data)];
@@ -375,6 +457,54 @@ hold on
 plot(abs(hil), '-r')
 subplot(1,2,2)
 plot(angle(hil))
+
+% run above analysis by filtering data and concatinating instantaneous
+% power
+
+% generate oscillatory data
+Fs = 1000;            % Sampling frequency                    
+T = 1/Fs;             % Sampling period       
+L = 1000;             % Length of signal
+t = (0:L-1)*T;        % Time vector
+data = sin(2*pi*5*t)+sin(2*pi*25*t) + sin(2*pi*60*t) ;
+
+bhi = fir1(34,[10/(Fs/2) ],'low');
+freqz(bhi,1)
+
+outhi1 = filter(bhi,1,data);
+
+bhi = fir1(34,[20/(Fs/2) 30/(Fs/2) ],'bandpass');
+freqz(bhi,1)
+
+outhi2 = filter(bhi,1,data);
+
+bhi = fir1(34,[40/(Fs/2) 50/(Fs/2) ],'bandpass');
+freqz(bhi,1)
+
+outhi3 = filter(bhi,1,data);
+
+bhi = fir1(34,[50/(Fs/2) 60/(Fs/2) ],'bandpass');
+freqz(bhi,1)
+
+outhi4 = filter(bhi,1,data);
+
+figure
+subplot(5,1,1)
+plot(data)
+subplot(5,1,2)
+plot(outhi1)
+subplot(5,1,3)
+plot(outhi2)
+subplot(5,1,4)
+plot(outhi3)
+subplot(5,1,5)
+plot(outhi4)
+
+data4hil=[outhi1;outhi2; outhi3; outhi4]';
+hil=hilbert(data4hil);
+
+figure
+imagesc(abs(hil'))
 
 
 %% Finding peaks 
