@@ -35,32 +35,37 @@ fs = 1000; % Sampling frequency (samples per second)
 dt = 1/fs; % seconds per sample 
 StopTime = 3; % seconds 
 t = (0:dt:StopTime)'; % seconds 
-F = 60; % Sine wave frequency (hertz) 
-data = sin(2*pi*F*t);
+F = 6; % Sine wave frequency (hertz) 
+data = 2*sin(2*pi*F*t) +1;
 figure
 plot(t,data)
 
 % add noise
-data = sin(2*pi*F*t)+rand(length(data),1);
+data = sin(2*pi*F*t)+0.1*rand(length(data),1);
 plot(t,data)
 
 % nest signals 
 F2=10;
-data = sin(2*pi*F*t)+rand(length(data),1) +  sin(2*pi*F2*t);
+data = sin(2*pi*F*t)+rand(length(data),1) + sin(2*pi*F2*t);
 plot(t,data)
 
 
 % exercise 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%try generating random numbers between -1 and 1 using rand
+% try generating random numbers between -1 and 1 using rand
+
+t=rand(100,1000) - rand(100,1000);
 
 % try generating random doubles between 1 and 10 using rand
+
+t=rand(100,100) + randi(10, [100,100])
+
+t=(9*rand(100,100)) +1;
 
 % try generating random doubles between 5 and 25 using randi
 
 % generate a oscilatory signal that monotonically decreases over time
-
 
 
 %% Data Smoothing
@@ -116,7 +121,7 @@ plot(t,detrend(data))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % generate random data
-temp_data=randi(100,10);
+temp_data=randi(100,[10,100]);
 % try removing the data's mean
 temp_data-mean(temp_data)
 temp_data-mean(temp_data,2)
@@ -135,6 +140,9 @@ data(randi(length(data),1,50))=100;
 plot(t,data)           
 plot(filloutliers(data, 'linear'))
 
+reshape(temp_data, [5, 200])
+permute(temp_data, [2,1])
+
 
 %% Spectral Power, FFTs, and PSDs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -147,6 +155,23 @@ t = (0:L-1)*T;        % Time vector
 S = 0.7*sin(2*pi*33*t) + sin(2*pi*153*t) + 3*sin(2*pi*222*t);
 X = S + 2*randn(size(t));
 
+Y = fft(S);
+
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+
+f = Fs*(0:(L/2))/L;
+figure
+subplot(1,2,1)
+plot(X)
+subplot(1,2,2)
+plot(f,P1) 
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
+% repeat the same process without the random noise
 Y = fft(X);
 
 P2 = abs(Y/L);
@@ -164,13 +189,16 @@ title('Single-Sided Amplitude Spectrum of X(t)')
 xlabel('f (Hz)')
 ylabel('|P1(f)|')
 
-% repeat the same process without the random noise
+
+%S = x1*sin(2*pi*x1*t)+ x2*sin(2*pi*x2*t);
+S = 0.7*sin(2*pi*6*t)+ 3*sin(2*pi*2*t);
+X = S + 2*randn(size(t));
+
 Y = fft(S);
 
 P2 = abs(Y/L);
 P1 = P2(1:L/2+1);
 P1(2:end-1) = 2*P1(2:end-1);
-
 
 f = Fs*(0:(L/2))/L;
 figure
@@ -183,7 +211,7 @@ xlabel('f (Hz)')
 ylabel('|P1(f)|')
 
 % let us try another signal 
-S = 0.7*sin(2*pi*33*t) + sin(2*pi*153*t) + 10*sin(2*pi*222*t);
+S = sin(2*pi*33*t) + sin(2*pi*66*t) + sin(2*pi*99*t);
 X = S + 2*randn(size(t));
 
 Y = fft(X);
@@ -267,9 +295,12 @@ title('Unfiltered Single Electrode Spike Recording '); % clear slow drifts in da
 [b,a] = butter(3,[500/(sr/2) 8000/(sr/2)], 'bandpass'); % create butterworth filter 
 filtered_data=filter(b,a,raw_spike_data); % apply butter worth filter 
 
-xlabel('Frequency (Hz)')
-ylabel('PSD (dB/Hz)')
-
+subplot(2,1,2)
+plot(filtered_data)
+axis tight;
+xlabel('time');
+ylabel('Micro Volts ');
+title('Filtered Single Electrode Spike Recording ');
 
 % create and apply lowpass butter worth filter
 [b,a] = butter(3,[100/(sr/2)], 'low'); % create butterworth filter 
@@ -404,7 +435,7 @@ freqz(b,a)
 
 % exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-%try highpass and lowpass filtering the electrophysiology data into
+% try highpass and lowpass filtering the electrophysiology data into
 % fast and slow oscilatory components. Try adding them back together and
 % see what happens, try moving around the filter frequency. What could be
 % causing this?
@@ -554,5 +585,5 @@ title('Filtered Single Electrode Spike Recording ');
 % exercise 3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%try using the mean, median, and std of the data determine the cutoff for
-%detecting peaks.
+% try using the mean, median, and std of the data determine the cutoff for
+% detecting peaks.

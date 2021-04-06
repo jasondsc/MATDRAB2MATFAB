@@ -364,7 +364,7 @@ scatter3(x,y,z,s,c, 'filled')
    %                                          THE FOLLOWING CODE
                   
                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+addpath('~/Documents/gramm-master/')
 load example_data.mat
 
 figure
@@ -432,6 +432,7 @@ osci1 = sin(2*pi*5*time)+ sin(2*pi*10*time);
 osci2 = sin(2*pi*2*time) + sin(2*pi*120*time);
 osci3 = sin(2*pi*F*time)+ sin(2*pi*102*time);
 
+clear g
 figure
 g(1,1)=gramm('x',repmat(time,[1,3])','y', [osci1, osci2, osci3]', 'color',{'Osci1', 'Osci2', 'Osci3'});
 %smooth plot 
@@ -442,12 +443,12 @@ g(1,1).set_color_options('map','brewer2');
 g.set_names('x','Frequency (Hz)','y','Log Power');
 g.draw();
 
-%clear g
+clear g
 figure
 g(1,1)=gramm('x',repmat(time,[1,3])','y', [osci1, osci2, osci3]', 'color',{'Osci1', 'Osci2', 'Osci3'});
 %smooth plot 
 g(1,1).geom_line();
-clg.facet_grid([], {'Osci1', 'Osci2', 'Osci3'}');
+g.facet_grid([], {'Osci1', 'Osci2', 'Osci3'}');
 g(1,1).set_title('Periodic --Baseline');
 g(1,1).set_color_options('map','brewer2');
 %These functions can be called on arrays of gramm objects
