@@ -9,6 +9,26 @@
 clear all
 close all
 
+%% Reminder on data manipulation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+data1= rand(10,9);
+data2= rand(10,9);
+data3= rand(10,9);
+
+data3d=cat(3,data1,data2,data3); % stack 2d matrix into 3d
+
+data3'
+data3d' % cannot transpose a 3d matrix
+
+permute(data3d, [2,3,1]) % reshpaes matrix by reordeing dims
+
+dataall=[data1(:),data2(:),data3(:)]; % use data(:) to access the flattened array
+
+reshape(data3d, [1,2,10,9]) % cannot add a dims
+reshape(data3d, [5,2,27])
+reshape(data3d, [30,9]) % but you can reduce dims
+
 %% What Not to plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure
@@ -96,13 +116,16 @@ plot(1:1000, 150000-1000*(1:1000)+randi(100000, [1,1000]))
      150000-2000*(1:1000)+randi(100000, [1,1000]);...
      150000-1000*(1:1000)+randi(100000, [1,1000])];
  
+ figure
+ plot(data')
+ 
 figure 
 plot(1:1000, data) % plotting data from multiple groups 
  xlabel('time')
  ylabel('money')
  title('Time is money')
  legend('Karen','Maria', 'Hope') % adding a legend 
- 
+
  %  specifiers in the plot function can modify the look of the plot
  % you can change the shape, line, and colour easily 
  % also note that Colours can be expressed as [R G B alpha] 
@@ -110,7 +133,7 @@ plot(1:1000, data) % plotting data from multiple groups
 % axis([0 100 0 100])
 xlim([0 100])
 
-% you can also use functions to redifine the labels of your axes as well as
+% you can also use functions to redefine the labels of your axes as well as
 % their 'ticks'
 x = linspace(-10,10,200);
 y = cos(x);
@@ -123,10 +146,32 @@ xticks([-3*pi -2*pi -pi 0 pi 2*pi 3*pi])
 xticklabels({'-3\pi','-2\pi','-\pi','0','\pi','2\pi','3\pi'})
 yticks([-1 -0.8 -0.2 0 0.2 0.8 1])
 
+xticklabels({'Load','No Load','Attention','No Attention','Sleepy','dead','alive'})
+yticks([-1 -0.8 -0.2 0 0.2 0.8 1])
+
+% plot multiple y axes
+figure
+yyaxis left
+y2 = sin(x/3);
+plot(x,y2);
+hold on
+r = x.^2/2;
+yyaxis right
+plot(x,r);
+
+yyaxis left
+title('Plots with Different y-Scales')
+xlabel('Time (S)')
+ylabel('Micro Volts')
+
+yyaxis right
+ylabel('Power')
+
  % exercise 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %try plotting three oscilations in one graph and overlay them with
 %transparency 
+
 
  % Error Bars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -136,14 +181,14 @@ x=1:10:100;
 figure
 plot(x, mean(y))
 hold on
-errorbar(x, mean(y),std(y)) % you can plot data with error bars using the errorbar function
+errorbar(x, mean(y),std(y), 'LineStyle', 'none') % you can plot data with error bars using the errorbar function
 
 y=rand(100,10);
 x=1:10:100;
 figure
 plot(x, mean(y))
 hold on
-errorbar(x, mean(y),std(y),'CapSize',20, 'LineWidth', 5)
+errorbar(x, mean(y),std(y),'CapSize',10, 'LineWidth', 5,  'LineStyle', 'none')
 
 y=rand(100,10);
 x=1:10:100;
@@ -163,6 +208,11 @@ errorbar(x, mean(y),std(y),'-s','MarkerSize',10,...
 % note how the specifier 'LineStyle' 'none' allows you to control the error
 % bars sepeartely from the plot!
 
+
+figure
+scatter(x, mean(y),170,[0.7 0.7 0.7], 'filled')
+hold on
+scatter(x, mean(y),80,[0.99 0.6 0.7], 'filled')
 
 
 RPDR_contestant_demo=readtable('./justafolderwithdata/RPDR_contestant_data.csv');
@@ -208,6 +258,9 @@ er = errorbar(x,mean(data),errlow,errhigh);
 er.Color = [0 0 0];                            
 er.LineStyle = 'none';  
 
+x = linspace(0,25);
+y = sin(x/2);
+
 
 %% Plotting your data's distribution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -238,7 +291,7 @@ f = exp(-(y-mu).^2./(2*sigma^2))./(sigma*sqrt(2*pi)); % must compute a gaussian 
 plot(y,f,'LineWidth',1.5)
  
  figure
- histogram(RPDR_contestant_demo.age(top3index),6, 'Normalization','pdf','FaceAlpha', 0.5, 'EdgeAlpha', 0.5)
+ histogram(RPDR_contestant_demo.age(top3index),4, 'Normalization','pdf','FaceAlpha', 0.5, 'EdgeAlpha', 0.5)
   hold on
 y = 10:0.1:40;
 mu = 26;
@@ -307,7 +360,7 @@ X = linspace(0,4*pi,50)';
 Y = [0.5*cos(X), 2*cos(X)];
 
 figure
-stairs(Y)
+stairs(X,Y)
 
 
 % Sometimes data, like phases are best represented on a circle rather than
@@ -357,17 +410,16 @@ scatter3(x,y,z,s,c, 'filled')
 % is significantly different than MATLAB's syntax. Below are a few examples
 % of different plots you can make with gramm
 
-                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    
-   %                                        WARNING YOU NEED TO ADD
-   %                                      GRAMM TO YOUR PATH TO RUN
-   %                                          THE FOLLOWING CODE
-                  
-                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%                              WARNING YOU NEED TO ADD
+%                             GRAMM TO YOUR PATH TO RUN
+%                                 THE FOLLOWING CODE
+
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 addpath('~/Documents/gramm-master/')
 load example_data.mat
 
-figure
 g=gramm('x',cars.Model_Year,'y',cars.MPG,'color',cars.Cylinders,'subset',cars.Cylinders~=3 & cars.Cylinders~=5);
 g.facet_grid([],cars.Origin_Region);
 g.geom_point();
@@ -388,7 +440,6 @@ cond={c{:};c2{:}};
 x(:,2)=x(:,2)+10;
 
 clear g5
-figure
 g5(1,1)=gramm('x',x','color',cond);
 g5(1,2)=copy(g5(1));
 g5(1,3)=copy(g5(1));
@@ -406,7 +457,6 @@ g5.draw();
 
 
 clear g
-figure
 g(1,1)=gramm('x',cars.Origin_Region,'y',cars.Horsepower,'color',cars.Cylinders,'subset',cars.Cylinders~=3 & cars.Cylinders~=5);
 g(1,2)=copy(g(1));
 %Averages with confidence interval
@@ -460,9 +510,24 @@ g.draw();
 
 
 
-% exercise 1
+% exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % plot two normal distributions and move a verticle line (i.e., a
 % criterion) across all integer x values 
+
+
+load('./justafolderwithdata/Iris_2021_data.mat');
+indx_versicolor=find(strcmp(iris_data.Species, 'versicolor'));
+indx_virginica=find(strcmp(iris_data.Species, 'virginica'));
+data= iris_data([indx_versicolor,indx_virginica],:);
+
+% plot the data to see where we could draw the line between the two species
+figure
+histogram(data.PetalLength(1:100),30)
+hold on
+histogram(data.PetalLength(101:end), 30)
+legend({'versicolor', 'virginica'})
+xline(3.5, 'LineWidth', 10)
+
 

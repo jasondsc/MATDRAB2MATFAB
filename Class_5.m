@@ -37,6 +37,10 @@ axis off;
 % explained -- variance explained by each component 
 % mu -- the estimated means of the columns of your data
 
+figure
+plot(explained, '-o', 'MarkerSize',10)
+xlim([1 20])
+
 % Let's multiply the scores by the coeff to see what our image would look
 % like with just 1, 2, 5, 10 etc components 
 subplot(3,3,1)
@@ -504,11 +508,11 @@ silhouette(peaks,ids(:,4))
 [ids_opt, crit_opt] = kmeans(score, 3, 'Replicates', 20, 'Options', opts); % 3 cluster optimal solution
 
 figure
-scatter(score(ids_opt==1,1), score(ids_opt==1,2), '.','Color', [0.4, 0.9 0.4])
+scatter(score(ids_opt==1,1), score(ids_opt==1,2), 20, [0.4, 0.9 0.4], 'filled')
 hold on;
-scatter(score(ids_opt==2,1), score(ids_opt==2,2), '.','Color', [0.4, 0.4 0.9])
+scatter(score(ids_opt==2,1), score(ids_opt==2,2), 20, [0.4, 0.4 0.9], 'filled')
 hold on;
-scatter(score(ids_opt==3,1), score(ids_opt==3,2), '.', 'Color', [0.9, 0.4 0.4])
+scatter(score(ids_opt==3,1), score(ids_opt==3,2), 20, [0.9, 0.4 0.4], 'filled')
 hold on;
 scatter(crit_opt(1:3,1), crit_opt(1:3,2), 200, 'kX')
 hold on;
@@ -574,14 +578,11 @@ score_test=score(setdiff(1:length(data), indx),:);
 [ids_opt, crit_opt] = kmeans(score_test, 3, 'Replicates', 20, 'Options', opts); % 3 cluster optimal solution
 
 figure
-scatter(score_test(ids_opt==1,1), score_test(ids_opt==1,2), '.g')
+scatter(score_test(ids_opt==1,1), score_test(ids_opt==1,2), 20, [0.4, 0.9 0.4], 'filled')
 hold on;
-scatter(score_test(ids_opt==2,1), score_test(ids_opt==2,2), '.m')
-hold on;
-scatter(score_test(ids_opt==3,1), score_test(ids_opt==3,2), '.c')
-hold on;
+scatter(score_test(ids_opt==2,1), score_test(ids_opt==2,2), 20, [0.4, 0.4 0.9], 'filled')
+scatter(score_test(ids_opt==3,1), score_test(ids_opt==3,2), 20, [0.9, 0.4 0.4], 'filled')
 scatter(crit_opt(1:3,1), crit_opt(1:3,2), 200, 'kX')
-hold on;
 scatter(crit_opt(1:3,1), crit_opt(1:3,2), 200, 'kd')
 
 score_test=score(setdiff(1:length(data), indx),:);
@@ -589,9 +590,9 @@ score_test=score(setdiff(1:length(data), indx),:);
 [ids_opt, crit_opt] = kmeans(score_test, 2, 'Replicates', 20, 'Options', opts); % 3 cluster optimal solution
 
 figure
-scatter(score_test(ids_opt==1,1), score_test(ids_opt==1,2), '.g')
+scatter(score_test(ids_opt==1,1), score_test(ids_opt==1,2), 20, [0.4, 0.9 0.4], 'filled')
 hold on;
-scatter(score_test(ids_opt==2,1), score_test(ids_opt==2,2), '.m')
+scatter(score_test(ids_opt==2,1), score_test(ids_opt==2,2), 20, [0.4, 0.4 0.9], 'filled')
 scatter(crit_opt(1:2,1), crit_opt(1:2,2), 200, 'kX')
 scatter(crit_opt(1:2,1), crit_opt(1:2,2), 200, 'kd')
 
