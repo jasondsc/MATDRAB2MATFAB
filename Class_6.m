@@ -5,6 +5,10 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+clear all
+clc
+close all
+
 %%  Descriptive Stats
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -136,9 +140,6 @@ ttest(group2, 4.0e04, 'Tail', 'right', 'Alpha', 0.0001)
 ttest2(group1, group2)
 
 
-
-
-
 % effect sizes based on between vs within measures
 % see slides for explination of example
 
@@ -178,6 +179,9 @@ t_unpaired= (mean1-mean2)/(sp*sqrt((1/n)+(1/n)))
 
 
 % permute data by randomly switch 1/2 of the indexes of the two groups
+% we do this for simplicity, but we do not want to always permute 1/2 the
+% data. We want to randomly pick some subset to permute so the second input
+% of ranperm needs to change size...
 indx_switch=randperm(length(group2),length(group2)/2);
 perm1=group1;
 perm2=group2;
@@ -209,6 +213,8 @@ stats.tstat
 %%  Bootstrapping 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% bootstrapping usually includes duplicates (i.e., with replacement)...
+% Note that permutations usually do NOT include replacement (duplicates)
 indx_switch=randi(length(group2),1,length(group2));
 perm1=group1(indx_switch);
 perm2=group2(indx_switch);
