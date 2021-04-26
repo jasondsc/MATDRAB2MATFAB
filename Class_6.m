@@ -19,6 +19,8 @@ median(iris_data.PetalLength)
 mode(iris_data.PetalLength)
 mean(table2array(iris_data(:,2:7)), 'omitnan') 
 mean(table2array(iris_data(:,2:7)), 'all')
+data=table2array(iris_data(:,2:7));
+mean(data(:))
 
 max(table2array(iris_data(:,2:7)))
 min(table2array(iris_data(:,2:7)))
@@ -46,8 +48,10 @@ rmmissing(a)
 a(ismissing(a))=intmin;
 
 a=1:100;
-a(22)=50;
+a(22)=500;
 isoutlier(a)
+a>3*std(a)
+isoutlier(a, 'mean')
 isoutlier(a, 'percentiles', [1 99])
 % there are many methods for determining oiutliers 
 
@@ -66,6 +70,7 @@ isoutlier(a, 'percentiles', [1 99])
 
 X = randn(8,8);
 Y = randn(8,8);
+Z = randn(8,8);
 
 corr(X,Y) % returns the pairwise correlation of columns 
 corr2(X,Y) % returns cor coef for vectorized matricies
@@ -76,6 +81,8 @@ corr2(reshape(X, [1,64]),reshape(Y, [1,64])) % returns cor coef for vectorized m
 corr(X,Y, 'Type','Spearman')
 corrcoef(X,Y, 'Type','Spearman')
 corr2(X,Y, 'Type','Spearman')
+
+corr(X(:), Y(:), 'Type','Spearman')
 
 X = randn(20,3);
 Y = randn(20,5);
@@ -137,7 +144,7 @@ ttest(group2, 4.0e04, 'Tail', 'right', 'Alpha', 0.0001)
 [h2,p2,ci2,stats2]= ttest(group1-group2) % same thing as above, WHY?
 
 % independent samples test 
-ttest2(group1, group2)
+[h2,p2,ci2,stats2]= ttest2(group1, group2)
 
 
 % effect sizes based on between vs within measures
@@ -182,6 +189,8 @@ t_unpaired= (mean1-mean2)/(sp*sqrt((1/n)+(1/n)))
 % we do this for simplicity, but we do not want to always permute 1/2 the
 % data. We want to randomly pick some subset to permute so the second input
 % of ranperm needs to change size...
+
+
 indx_switch=randperm(length(group2),length(group2)/2);
 perm1=group1;
 perm2=group2;
@@ -200,6 +209,7 @@ sp= sqrt(((n-1)*var1^2 + (n-1)*var2^2)/ (n + n -2));
 t_unpaired= (mean1-mean2)/(sp*sqrt((1/n)+(1/n))) 
 [h,p,ci,stats]=ttest2(perm1, perm2, 'Vartype', 'equal')
 stats.tstat
+
 
 % exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
