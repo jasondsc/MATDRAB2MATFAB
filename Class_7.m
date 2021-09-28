@@ -24,6 +24,12 @@ hold on
 plot(f)
 end
 
+[f, gof, output]=fit(iris_data.InstagramLikes, iris_data.Availability, 'poly')
+
+[P,S]=polyfit(iris_data.InstagramLikes, iris_data.Availability,200)
+
+[P,S]=polyfit(iris_data.InstagramLikes, iris_data.Availability,2)
+
 % you can visually pick which model you think best fits the data by looking
 % at the figure. Which one would you pick?
 
@@ -143,7 +149,7 @@ hold on;
 % first you need to define the function (or surface) we want to find the
 % minimum of (i.e., the log likelihood function) 
 LL = @(u)normlike([u(1),u(2)],X); 
-MLES = fminsearch(LL,[1,2]) % search the space (i.e., function) using the starting values
+MLES = fminsearch(LL,[1.1,2.2]) % search the space (i.e., function) using the starting values
 
 % try switching the starting values X0 [1 ,2] what happens to the end
 % result?
@@ -181,7 +187,7 @@ dating=dating(:,[2:8 10:end-1]);
 figure
 scatter(dating.counts_profileVisits, dating.age)
 
-[f, gof, output]=fit(dating.counts_profileVisits, dating.age, strcat('poly', int2str(1)))
+[f, gof, output]=fit(dating.counts_profileVisits, dating.age, strcat('poly', int2str(9)))
 
 
 % Try removing outliers from the data and refit the models, what is
@@ -191,4 +197,46 @@ scatter(dating.counts_profileVisits, dating.age)
 rm_dating=rmoutliers([dating.counts_profileVisits, dating.age])
 figure
 scatter(rm_dating(:,1), rm_dating(:,2))
+
+%%  Linear Regression Models 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Let us try regressing the effects of species on sepal length 
+
+load fisheriris
+
+% table all the variables we wish to explore into one large data frame
+data=table(meas(:,1), meas(:,2),...
+        meas(:,3), meas(:,4),...
+      species);
+data.Properties.VariableNames = {'Speal_Length' 'Sepal_Width' 'Petal_Length' 'Petal_Width', 'Species'} % rename columns
+
+% let us effect code the data (i.e., turn the species into numbers)
+data.Species_coded(find(strcmp(data.Species, 'virginica'))) = .5;
+data.Species_coded(find(strcmp(data.Species, 'setosa'))) = 0;
+data.Species_coded(find(strcmp(data.Species, 'versicolor'))) = -.5;
+
+% now that we have rearranged our data and put it in a format that we can
+% work with (i.e., long format) let us run a regression model 
+X = table(ones(size(data.Species)), data.Species_coded);
+X.Properties.VariableNames = {'Intercept', 'Species'};
+
+
+[b,bint,r,rint,stats] = regress(data.Sepal_Width,table2array(X))    % Removes NaN data
+% b will return the beta coefficents
+% bint will retrun the 95% CI of the betas
+% r returns the residulas
+% rint diagnostic intervals to check for outliers 
+% stats returns the R2, the F, the p-value, and the estimated error
+% variance
+
+% let us explore b
+disp(b) 
+
+% now let us run an ANOVA and compare the effects
+[p,tbl, stats]= anova1(data.Sepal_Width, data.Species)
+% exercise 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% what do you notice? How are they the same? How are they different? Is a
+% regression an ANOVA? Is an ANOVA a regression? What can one do that the
+% other can't? 
 

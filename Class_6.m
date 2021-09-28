@@ -1,413 +1,621 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%                               Class 6 
-%                              Statistics 
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%                               Class 6
+%                     Data Reduction and Clustering
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
-clc
 close all
 
-%%  Descriptive Stats
+% Below we will apply PCA and ICA to a variety of data sets to observe what
+% happens when we run each algorithm. We will use several examples from
+% single images, a dataset of images, to sounds.
+
+%%  PCA on a single image
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% here we will observe what happens when you run PCA on a single image
 
-load('./justafolderwithdata/Iris_2021_data.mat')
+image=imread('./MemeFolder/WhoAmI.jpg'); % read in image to MATLAB
+%image=imread('./MemeFolder/ladygaga4.jpg');
+image=mean(double(image),3); % forcing the input to be a double and 
+% then taking a mean along the RGB values makes the image black and white 
 
-mean(iris_data.PetalLength)
-median(iris_data.PetalLength)
-mode(iris_data.PetalLength)
-mean(table2array(iris_data(:,2:7)), 'omitnan') 
-mean(table2array(iris_data(:,2:7)), 'all')
-data=table2array(iris_data(:,2:7));
-mean(data(:))
+% run PCA
+[coeff, score, latent, tsquared, explained, mu]=pca(image);
+% coeff --matrix (n by n) of weights, each PC is a col
+% score --matrix (m by n) describes how each observation loads on a PC
+% latent --eigenvalues of the covariance matrix of image
+% tsquared --- Sum of squares of standardized scores
+% explained -- variance explained by each component 
+% mu -- the estimated means of the columns of your data
 
-max(table2array(iris_data(:,2:7)))
-min(table2array(iris_data(:,2:7)))
-maxk(table2array(iris_data(:,2:7)),3)
-mink(table2array(iris_data(:,2:7)),3)
+figure
+plot(explained, '-o', 'MarkerSize',10)
+xlim([1 20])
 
-std(table2array(iris_data(:,2:7)))
-std(table2array(iris_data(:,2:7)),1)
-help std
-std(table2array(iris_data(:,2:7)),0)
-std(table2array(iris_data(:,2:7)),0,2)
-std(table2array(iris_data(:,2:7)),1,2)
-range(table2array(iris_data(:,2:7)))
-var(table2array(iris_data(:,2:7)))
+% Lets visulaize the output 
+figure
+subplot(3,3,9)
+imagesc(image)
+colormap(gray)
+axis off;
 
-%%  Dealing with missing data and outliers 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-a=1:10;
-a(2)=NaN
-
-a==NaN
-ismissing(a)
-rmmissing(a)
-a(ismissing(a))=intmin;
-
-a=1:100;
-a(22)=500;
-isoutlier(a)
-a>3*std(a)
-isoutlier(a, 'mean')
-isoutlier(a, 'percentiles', [1 99])
-% there are many methods for determining oiutliers 
-
+% Let's multiply the scores by the coeff to see what our image would look
+% like with just 1, 2, 5, 10 etc components 
+subplot(3,3,1)
+imagesc(score(:,1)*coeff(:,1)')
+colormap(gray)
+axis off;
+subplot(3,3,2)
+imagesc(score(:,1:2)*coeff(:,1:2)')
+colormap(gray)
+axis off;
+subplot(3,3,3)
+imagesc(score(:,1:5)*coeff(:,1:5)')
+colormap(gray)
+axis off;
+subplot(3,3,4)
+imagesc(score(:,1:10)*coeff(:,1:10)')
+colormap(gray)
+axis off;
+subplot(3,3,5)
+imagesc(score(:,1:20)*coeff(:,1:20)')
+colormap(gray)
+axis off;
+subplot(3,3,6)
+imagesc(score(:,1:30)*coeff(:,1:30)')
+colormap(gray)
+axis off;
+subplot(3,3,7)
+imagesc(score(:,1:50)*coeff(:,1:50)')
+colormap(gray)
+axis off;
+subplot(3,3,8)
+imagesc(score(:,1:100)*coeff(:,1:100)')
+colormap(gray)
+axis off;
+% notice what happens when we add more components to the image
 
 % exercise 1
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% why is it that the last few components we add do very little to improve
+% the image 
 
-% load in the speed dating data, remove NaN and compute descriptive stats
-% of central tendency and dispersion. Try this without removing NaN, can
-% you do it using just the function mean for example? 
+% Try scripting the above plots so that the code is more elegant
 
 
-
-%%  Correlations and t-tests
+%%  ICA on a single image
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% here we will observe what happens when you run ICA on a single image
 
-X = randn(8,8);
-Y = randn(8,8);
-Z = randn(8,8);
+% plot original image below
+figure
+subplot(3,4,12)
+imagesc(image)
+colormap(gray)
+axis off;
 
-corr(X,Y) % returns the pairwise correlation of columns 
-corr2(X,Y) % returns cor coef for vectorized matricies
-corrcoef(X,Y) % returns the corr coef for entire 2d matrix
-corr2(reshape(X, [1,64]),reshape(Y, [1,64])) % returns cor coef for vectorized matricies
+ica_out=rica(image,50); % run ICA algorithm on data 
+% retruns struct with TransformWeights
+t=transform(ica_out,image); % transforms/ rotates the original data into new space
+% t is much like the score you get in PCA
 
-% Let us try a Spearman Rank corr
-corr(X,Y, 'Type','Spearman')
-corrcoef(X,Y, 'Type','Spearman')
-corr2(X,Y, 'Type','Spearman')
+% Let's do the same thing, and add several components to the data
+subplot(3,4,1)
+imagesc(t(:,1)*ica_out.TransformWeights(:,1)')
+colormap(gray)
+axis off
 
-corr(X(:), Y(:), 'Type','Spearman')
+subplot(3,4,2)
+imagesc(t(:,1:2)*ica_out.TransformWeights(:,1:2)')
+colormap(gray)
+axis off;
 
-X = randn(20,3);
-Y = randn(20,5);
+subplot(3,4,3)
+imagesc(t(:,1:3)*ica_out.TransformWeights(:,1:3)')
+colormap(gray)
+axis off;
 
-corr(X,Y) % returns the pairwise correlation of columns 
-corr2(X,Y) % returns cor coef for vectorized matricies
-corrcoef(X,Y) % returns the corr coef for entire 2d matrix
-   
-X = randn(10,7);
-Y = randn(20,7);
+subplot(3,4,4)
+imagesc(t(:,1:5)*ica_out.TransformWeights(:,1:5)')
+colormap(gray)
+axis off;
 
-corr(X,Y) % returns the pairwise correlation of columns 
-corr2(X,Y) % returns cor coef for vectorized matricies
-corrcoef(X,Y) % returns the corr coef for entire 2d matrix
+subplot(3,4,5)
+imagesc(t(:,1:10)*ica_out.TransformWeights(:,1:10)')
+colormap(gray)
+axis off;
 
+subplot(3,4,6)
+imagesc(t(:,1:20)*ica_out.TransformWeights(:,1:20)')
+colormap(gray)
+axis off;
 
-% Reminder:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+subplot(3,4,7)
+imagesc(t(:,1:25)*ica_out.TransformWeights(:,1:25)')
+colormap(gray)
+axis off;
 
-% corr needs only the same number of rows
-% corr2 only takes scalars 
-% corrcoef takes 2 matrices of the SAME size
-% the function reshpae is very useful when working with data to make sure
-% it is the appropriate size 
+subplot(3,4,8)
+imagesc(t(:,1:30)*ica_out.TransformWeights(:,1:30)')
+colormap(gray)
+axis off;
 
-%%  T-tests
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+subplot(3,4,9)
+imagesc(t(:,1:35)*ica_out.TransformWeights(:,1:35)')
+colormap(gray)
+axis off;
 
-% let us read in some data and test if income is an importnat factor in
-% speed dating 
+subplot(3,4,10)
+imagesc(t(:,1:40)*ica_out.TransformWeights(:,1:40)')
+colormap(gray)
+axis off;
 
-dating= readtable('./justafolderwithdata/SpeedDatingData.csv');
-
-group1= dating.income(dating.match==0);
-group1=group1(~isnan(group1));
-group2= dating.income(dating.match==1);
-group2=group2(~isnan(group2));
-group1=randsample(group1, length(group2));
-
-clc
-help ttest
-[h,p,ci,stats]= ttest(group2) % testing the one-sample hypothesis with an alpha of 0.5 and two tails 
-% default tests that data come from a normal dist with mean M = 0
-
-% let us change the mean M 
-ttest(group2, 4.5e04)
-
-
-% let us change the tails
-ttest(group2, 0, 'Tail', 'left')
-ttest(group2, 0, 'Tail', 'right')
-
-ttest(group2, 4.0e04, 'Tail', 'right', 'Alpha', 0.0001)
-
-
-% paired samples t tests 
-[h1,p1,ci1,stats1]= ttest(group1, group2)
-
-[h2,p2,ci2,stats2]= ttest(group1-group2) % same thing as above, WHY?
-
-% independent samples test 
-[h2,p2,ci2,stats2]= ttest2(group1, group2)
-
-
-% effect sizes based on between vs within measures
-% see slides for explination of example
-
-% t-value paired
-t_paired= (3.75)/(1/sqrt(20)); % with df of 19
-
-% t-value unpaired assuming equal var
-sp= ((20-1)*1 + (20-1)*1)/ (20 + 20 -2);
-t_unpaired= (3.75)/(sp*sqrt((1/20)+(1/20))); % with df of 38
-
-% Let us half the sample in each group
-sp= ((10-1)*1 + (10-1)*1)/ (10 + 10 -2);
-t_unpaired= (3.75)/(sp*sqrt((1/10)+(1/10))); % with df of 18
-
-
-%%  Permutations
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-dating= readtable('./justafolderwithdata/SpeedDatingData.csv');
-
-group1= dating.income(dating.match==0);
-group1=group1(~isnan(group1));
-group2= dating.income(dating.match==1);
-group2=group2(~isnan(group2));
-group1=randsample(group1, length(group2));
-
-% compute t for independent samples, equal var
-n=length(group1);
-var1=std(group1);
-var2=std(group2);
-mean1=mean(group1);
-mean2=mean(group2);
-
-sp= sqrt(((n-1)*var1^2 + (n-1)*var2^2)/ (n + n -2));
-t_unpaired= (mean1-mean2)/(sp*sqrt((1/n)+(1/n))) 
-[h,p,ci,stats]=ttest2(group1, group2, 'Vartype', 'equal')
-
-
-% permute data by randomly switch 1/2 of the indexes of the two groups
-% we do this for simplicity, but we do not want to always permute 1/2 the
-% data. We want to randomly pick some subset to permute so the second input
-% of ranperm needs to change size...
-
-
-indx_switch=randperm(length(group2),length(group2)/2);
-perm1=group1;
-perm2=group2;
-
-perm1(indx_switch)=group2(indx_switch);
-perm2(indx_switch)=group1(indx_switch);
-
-% compute t again
-n=length(perm1);
-var1=std(perm1);
-var2=std(perm2);
-mean1=mean(perm1);
-mean2=mean(perm2);
-
-sp= sqrt(((n-1)*var1^2 + (n-1)*var2^2)/ (n + n -2));
-t_unpaired= (mean1-mean2)/(sp*sqrt((1/n)+(1/n))) 
-[h,p,ci,stats]=ttest2(perm1, perm2, 'Vartype', 'equal')
-stats.tstat
-
+subplot(3,4,11)
+imagesc(t(:,1:45)*ica_out.TransformWeights(:,1:45)')
+colormap(gray)
+axis off;
 
 % exercise 2
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% what do you notice that is different than PCA? 
+% How does adding additional compoents change the overall picture?
+% Does each component carry the same amount of information or weight?
+% What does each component look like?
 
-% create a loop to iterate over 100 permutations of your data. Save the
-% result of each permutation (i.e., the resulting t-value) and once done,
-% plot the histogram of your null result. What does it look like?
-% Use descriptive stats to tell me what your null distribution is like.
-
-
-%%  Bootstrapping 
+%%  PCA and ICA on a group of picture
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% here we will observe what happens when you run PCA  and ICA on a group
+% of pictures (i.e., a database of images all of faces).
 
-% bootstrapping usually includes duplicates (i.e., with replacement)...
-% Note that permutations usually do NOT include replacement (duplicates)
-indx_switch=randi(length(group2),1,length(group2));
-perm1=group1(indx_switch);
-perm2=group2(indx_switch);
+clear all
+close all
 
-mean(perm1)
-mean(perm2)
+files= dir('./justafolderwithdata/ServingUFace/*.png'); % get list of images
+count=1;
+% iterate through files and load each one
+for i=1:length(files)
+    
+    temp=imread(strcat('./justafolderwithdata/ServingUFace/', files(i,1).name));
+    temp=imresize(temp,0.05); % downsample image to run faster
+    temp=mean(double(temp),3); % cast as double and make image greyscale
+    data(count,:,:)=temp;
+    count=count+1;
+end
 
-mean(group1)
-mean(group2)
+% plot mean of all images 
+figure
+subplot(3,3,1)
+imagesc(squeeze(mean(data,1)))
+colormap(gray)
+axis off;
+s=size(data,3);
+% reshape data so that rows are observations (each individual image) and
+% cols are features (i.e., each individual pixel of image) 
+image=reshape(data, [69, s*s]);
+% run PCA
+[coeff, score, latent, tsquared, explained, mu]=pca(image);
+subplot(3,3,2)
+% plot each component of PCA to see what features they found
+imagesc(squeeze(reshape(coeff(:,1),[1, s,s])))
+colormap(gray)
+axis off;
+subplot(3,3,3)
+imagesc(squeeze(reshape(coeff(:,2),[1, s,s])))
+colormap(gray)
+axis off;
+subplot(3,3,4)
+imagesc(squeeze(reshape(coeff(:,3),[1, s,s])))
+colormap(gray)
+axis off;
+subplot(3,3,5)
+imagesc(squeeze(reshape(coeff(:,4),[1, s,s])))
+colormap(gray)
+axis off;
+subplot(3,3,6)
+imagesc(squeeze(reshape(coeff(:,5),[1, s,s])))
+colormap(gray)
+axis off;
+subplot(3,3,7)
+imagesc(squeeze(reshape(coeff(:,6),[1, s,s])))
+colormap(gray)
+axis off;
+subplot(3,3,8)
+imagesc(squeeze(reshape(coeff(:,7),[1, s,s])))
+colormap(gray)
+axis off;
+subplot(3,3,9)
+imagesc(squeeze(reshape(coeff(:,8),[1, s,s])))
+colormap(gray)
+axis off;
+% what do you notice about the features PCA extracts?
+% open up some of the images in the directroy and compare them to your
+% componets.
+% what are the similarities and differences?
+
+% lets try ICA on the same data
+tic
+ica_out=rica(image,length(files), 'Standardize', true);
+toc % find out how long this command takes to run
+
+% plot mean of images again
+figure
+subplot(3,4,12)
+imagesc(squeeze(mean(data,1)))
+colormap(gray)
+axis off;
+
+% plot individual extracted components from ICAS
+subplot(3,4,1)
+imagesc(reshape(ica_out.TransformWeights(:,1)', [s,s]))
+colormap(gray)
+axis off
+
+subplot(3,4,2)
+imagesc(reshape(ica_out.TransformWeights(:,2)', [s,s]))
+colormap(gray)
+axis off;
+
+subplot(3,4,3)
+imagesc(reshape(ica_out.TransformWeights(:,3)', [s,s]))
+colormap(gray)
+axis off;
+
+
+subplot(3,4,4)
+imagesc(reshape(ica_out.TransformWeights(:,4)', [s,s]))
+colormap(gray)
+axis off;
+
+subplot(3,4,5)
+imagesc(reshape(ica_out.TransformWeights(:,5)', [s,s]))
+colormap(gray)
+axis off;
+
+subplot(3,4,6)
+imagesc(reshape(ica_out.TransformWeights(:,6)', [s,s]))
+colormap(gray)
+axis off;
+
+subplot(3,4,7)
+imagesc(reshape(ica_out.TransformWeights(:,7)', [s,s]))
+colormap(gray)
+axis off;
+
+subplot(3,4,8)
+imagesc(reshape(ica_out.TransformWeights(:,8)', [s,s]))
+colormap(gray)
+axis off;
+
+subplot(3,4,9)
+imagesc(reshape(ica_out.TransformWeights(:,9)', [s,s]))
+colormap(gray)
+axis off;
+
+subplot(3,4,10)
+imagesc(reshape(ica_out.TransformWeights(:,10)', [s,s]))
+colormap(gray)
+axis off;
+
+subplot(3,4,11)
+imagesc(reshape(ica_out.TransformWeights(:,11)', [s,s]))
+colormap(gray)
+axis off;
 
 % exercise 3
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% what sorts of features does ICA extract?
+% Compare these to the original images? Plot a downsampled, greyscale image
+% to compare
+% How is this different than PCA?
 
-% bootstrap your data 100 times and save the mean each time. Now that you
-% have 100 estimates of your data plot them and compare it to your actual/
-% observed mean. Tell me what you notice.
 
-   
-%takse function dprime and modify it so that it works along the columns of
-%a matrix
-% 
-%%  Signal Detetction Theory
+
+%%  Blind Source Seperation Problem (ICA and PCA)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+rng default % set the random number generator of MATLAB
 
-addpath('./dprime/'); % add dprime script to path (modified for this class)
+% let us load a bunch of sounds into matlab
+files = {'chirp.mat'
+        'gong.mat'
+        'handel.mat'
+        'laughter.mat'
+        'splat.mat'
+        'train.mat'};
 
-load('./justafolderwithdata/Iris_2021_data.mat');
-indx_versicolor=find(strcmp(iris_data.Species, 'versicolor'));
-indx_virginica=find(strcmp(iris_data.Species, 'virginica'));
-data= iris_data([indx_versicolor,indx_virginica],:);
+S = zeros(10000,6);
+for i = 1:6
+    test     = load(files{i});
+    y        = test.y(1:10000,1);
+    S(:,i)   = y;
+end
+% let us mix up the sounds into complicated sounds
+% as if these were all happening in the same room and we recorded them with
+% different microphones
+mixdata = S*randn(6) + randn(1,6);
 
-% plot the data to see where we could draw the line between the two species
+% let us plot the original sounds and the mixed up signals
 figure
-histogram(data.PetalLength(1:100))
-hold on
-histogram(data.PetalLength(101:end))
-legend({'versicolor', 'virginica'})
-
-% what is a good decision boundary to take? 
-
-which dprime
-
-% let us use a PetalLength of 4 5 6 as examples
-% look at dprime inputs 
-
-% need to compute FA and TP rate
-FA= sum(data.PetalLength > 4 & strcmp(data.Species,  'versicolor'))/sum(strcmp(data.Species,  'versicolor'));
-HITS= sum(data.PetalLength > 4 & strcmp(data.Species,  'virginica'))/sum(strcmp(data.Species,  'virginica'));
-
-[dpri,ccrit]=dprime(HITS, FA, sum(strcmp(data.Species,  'virginica')),sum(strcmp(data.Species,  'versicolor')))
-
-% how do you interpret these results? What does this mean? Is this good
-% classification? 
-
-% lets try it again with 5 and 6
-FA= sum(data.PetalLength > 5 & strcmp(data.Species,  'versicolor'))/sum(strcmp(data.Species,  'versicolor'));
-HITS= sum(data.PetalLength > 5 & strcmp(data.Species,  'virginica'))/sum(strcmp(data.Species,  'virginica'));
-
-[dpri,ccrit]=dprime(HITS, FA, sum(strcmp(data.Species,  'virginica')),sum(strcmp(data.Species,  'versicolor')))
-
-FA= sum(data.PetalLength > 6 & strcmp(data.Species,  'versicolor'))/sum(strcmp(data.Species,  'versicolor'));
-HITS= sum(data.PetalLength > 6 & strcmp(data.Species,  'virginica'))/sum(strcmp(data.Species,  'virginica'));
-
-[dpri,ccrit]=dprime(HITS, FA, sum(strcmp(data.Species,  'virginica')),sum(strcmp(data.Species,  'versicolor')))
-
-% which of the following decision boundaries are the best and why? explain
-% yourself 
-
-% exercise 4
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% code a loop to find optimum of decision boundary 
-
-% take function dprime and modify it so that it works along vectors
-
-[dpri,ccrit]=dprime2d([0 1 0.3], [0.2 0.2 1], [10 10 10], [20 20 20])
-
-%%  ROC curves
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-count=1;
-for i= 10:10:200
-x=i;
-figure
-y = -8:0.1:14;
-mu = 2.5;
-sigma = 2;
-f1 = exp(-(y-mu).^2./(2*sigma^2))./(sigma*sqrt(2*pi));
-plot( 0:1:220,f1,'LineWidth',1.5)
-hold on
-mu = 0;
-sigma = 2;
-f2 = exp(-(y-mu).^2./(2*sigma^2))./(sigma*sqrt(2*pi));
-plot( 0:1:220,f2,'LineWidth',1.5)
-xline(x, 'LineWidth', 5)
-area(0:1:x-1,f2(:,1:x),'FaceColor', [0.9 0 0],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.1, 'EdgeAlpha', 0)
-area(0:1:x-1,f1(:,1:x),'FaceColor', [0.3 0.3 0.8],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.2, 'EdgeAlpha', 0)
-area(x-1:1:220,f2(:,x:end),'FaceColor', [0.8 0.3 0.3],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.2, 'EdgeAlpha', 0)
-area(x-1:1:220,f1(:,x:end),'FaceColor', [0.0 0.0 0.9],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.1, 'EdgeAlpha', 0)
-xlim([0 201])
-saveas(gcf, strcat('./ROC_', int2str(count), '.pdf'))
-count=count+1;
+for i = 1:6
+    subplot(2,6,i)
+    plot(S(:,i))
+    title(['Sound ',num2str(i)])
+    subplot(2,6,i+6)
+    plot(mixdata(:,i))
+    title(['Mix ',num2str(i)])
 end
 
+% Lets play an example of the original sound and the mixed sound
+soundsc(S(:,1));
+pause(2)
+soundsc(mixdata(:,1))
 
-count=1;
-mu = 2.5;
-sigma = 2;
-f1 = exp(-(y-mu).^2./(2*sigma^2))./(sigma*sqrt(2*pi));
+% Let's run PCA
+[coeff, score, latent, tsquared, explained, mu]=pca(mixdata);
 
-mu = 0;
-sigma = 2;
-f2 = exp(-(y-mu).^2./(2*sigma^2))./(sigma*sqrt(2*pi));
 figure
-for i=(10:10:200)
-    
-    cri=i;
-    if i ==10
-        plot(0:0.1:1,0:0.1:1, 'Color', [0.3 0.3 0.3 0.3], 'LineWidth', 5)
-        fp1=1;
-        tp1=1;
-    else
-    fp1=fp;
-    tp1=tp;
-    end
-    fp=(10-sum(f2(:,1:i)))/10;
-    tp=(10-sum(f1(:,1:i)))/10;
-    fptot(count)=fp;
-    tptot(count)=tp;
-
-    hold on
-    scatter(fp,tp,70,'filled');
-    plot([fp1 fp],[tp1 tp],'--', 'Color', [0.3 0.3 0.3 0.3], 'LineWidth', 2)
-    %area([fp1 fp],[tp1 tp],'FaceColor', [0.3 0.3 0.3],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.1, 'EdgeAlpha', 0)
-    title(' ROC curve analysis')
-    xlabel('False Positives')
-    ylabel('True Positives')
-    saveas(gcf, strcat('./AUC_', int2str(count), '.pdf'))
-    count=count+1;
-    
+for i = 1:6
+    subplot(2,6,i)
+    plot(S(:,i))
+    title(['Sound ',num2str(i)])
+    subplot(2,6,i+6)
+    plot(score(:,i))
+    title(['Unmix ',num2str(i)])
 end
 
+% play unmixed sounds
+soundsc(S(:,1));
+pause(2)
+soundsc(score(:,1));
 
-x=100;
+% exercise 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% How well did PCA do?
+% Why do you think this did or did not work?
+% what could the potential problems here?
+
+
+% How about ICA? 
+mixdata = prewhiten(mixdata);
+q = 6;
+Mdl = rica(mixdata,q,'NonGaussianityIndicator',ones(6,1));
+
+unmixed = transform(Mdl,mixdata);
+
+% plot unmixed sounds
 figure
-y = -8:0.1:14;
-mu = 4.5;
-sigma = 2;
-f1 = exp(-(y-mu).^2./(2*sigma^2))./(sigma*sqrt(2*pi));
-plot( 0:1:220,f1,'LineWidth',1.5)
-hold on
-mu = 0;
-sigma = 2;
-f2 = exp(-(y-mu).^2./(2*sigma^2))./(sigma*sqrt(2*pi));
-plot( 0:1:220,f2,'LineWidth',1.5)
-xline(x, 'LineWidth', 5)
-area(0:1:x-1,f2(:,1:x),'FaceColor', [0.9 0 0],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.1, 'EdgeAlpha', 0)
-area(0:1:x-1,f1(:,1:x),'FaceColor', [0.3 0.3 0.8],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.2, 'EdgeAlpha', 0)
-area(x-1:1:220,f2(:,x:end),'FaceColor', [0.8 0.3 0.3],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.2, 'EdgeAlpha', 0)
-area(x-1:1:220,f1(:,x:end),'FaceColor', [0.0 0.0 0.9],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.1, 'EdgeAlpha', 0)
-xlim([0 201])
-saveas(gcf, strcat('./ROC_', int2str(93), '.pdf'))
+for i = 1:6
+    subplot(2,6,i)
+    plot(S(:,i))
+    title(['Sound ',num2str(i)])
+    subplot(2,6,i+6)
+    plot(unmixed(:,i))
+    title(['Unmix ',num2str(i)])
+end
+
+% play unmixed sounds
+soundsc(S(:,1));
+pause(2)
+soundsc(unmixed(:,2))
+
+% exercise 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% How well did ICA do?
+% Why do you think this did or did not work?
 
 
-%%  AUC and ROC in MATLAB
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    K- means
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-load('./justafolderwithdata/Iris_2021_data.mat')
-indx_versicolor=find(strcmp(iris_data.Species, 'versicolor'));
-indx_virginica=find(strcmp(iris_data.Species, 'virginica'));
-data= iris_data([indx_versicolor,indx_virginica],:);
-[X,Y,T,AUC]=perfcurve(data.Species, data.SepalLength, 'virginica')
+% Let's take up our example of spikes recorded from an electrode array 
+% see previous classes for explination of filters 
+clear all
+close all
+load('./justafolderwithdata/raw_spike_data.mat') % load data spiking data recorded from electrode array
+sr=44100; % sampling rate of the electrode array
+figure
+subplot(2,1,1)
+plot(raw_spike_data) % plot data to visualize spikes and time series
+axis tight; 
+xlabel('time');
+ylabel('Micro Volts ');
+title('Unfiltered Single Electrode Spike Recording '); % clear slow drifts in data that need 
+                                                        %to be removed with a filter before clustering
+% create and apply filter butter worth filter
+[b,a] = butter(3,[500/(sr/2) 8000/(sr/2)], 'bandpass'); % create butterworth filter 
+filtered_data=filter(b,a,raw_spike_data); % apply butter worth filter 
+
+% plot filtered data with unfiltered data 
+subplot(2,1,2)
+plot(filtered_data)
+axis tight;
+xlabel('time');
+ylabel('Micro Volts ');
+title('Filtered Single Electrode Spike Recording ');
+
+% threshold data to find peaks (i.e., spikes) with MATLAB's findpeaks
+[pks,locs]=findpeaks(-1*filtered_data, 'MinPeakHeight',3.5*std(filtered_data)); 
+% TIP input the inverse of the data (i.e. -1*) as findpeaks looks
+% for local maxima and not minima
+
+% Plot peaks found
+figure 
+plot(filtered_data)
+hold on;
+scatter(locs,-1*pks)
+axis tight;
+xlabel('time');
+ylabel('Micro Volts ');
+title('Filtered Single Electrode Spike Recording ');
+
+% extract deisred window [-20 to 43] samples around a peak
+for i =1:length(locs)
+peaks(i,:)=filtered_data(locs(i)-20:locs(i)+43);
+end
 
 figure
-subplot(1,2,1)
-histogram(iris_data.SepalLength(indx_versicolor))
-hold on
-histogram(iris_data.SepalLength(indx_virginica))
-subplot(1,2,2)
-plot(X,Y, '-', 'Color', [0.4 0.4 0.4])
-hold on
-plot(0:0.1:1,0:0.1:1, 'Color', [0.4 0.4 0.4])
-scatter(X, Y,10, 'filled', 'MarkerEdgeColor',[0.4 0.4 0.4], 'MarkerFaceColor', [0.4 0.4 0.4] )
+plot(-20:43, peaks')
+axis tight
+xlabel('time (number of samples)');
+ylabel('Micro Volts ');
+title('Extracted Timeseries of Peaks ');
 
-% exercise, repeat above steps for all measures and plot all ROC on the
-% same curve. Which feature has best AUC (i.e., discrimination) 
+% run PCA over peaks to extract features; how many components are
+% visbale? 
+[coeff,score,latent,~,explained] = pca(peaks);
+figure
+plot(explained, '-*'); % plot percent var explained
+xlabel("Component Number")
+ylabel("Percent Variance Explained (%)")
+
+% lets plot first two components and see how the data scatters
+figure
+scatter(score(:,1), score(:,2), '.')
+
+% now that we have extracted features from the data let us see how they
+% cluster together
+
+% Run K-means clustering 
+opts = statset('Display','final'); % set options of k-means
+numclust=10; % max number of k
+
+% make place holder for output 
+ctrs = zeros(size(peaks,1), numclust);
+ids = zeros(size(peaks,1), numclust);
+sumd= zeros(1,numclust);
+
+%iterate through different k and run k-means
+for j=1:numclust
+[ids(:,j)] = kmeans(peaks, j, 'Replicates', 20, 'Options', opts);
+end
+
+% find the optimal solution for the best number of clusters
+
+eva_cali = evalclusters(peaks,ids,'CalinskiHarabasz') % evaluate the best number of k clusters
+eva_sil = evalclusters(peaks,ids,'silhouette') % evaluate the best number of k clusters
+eva_Dav = evalclusters(peaks,ids,'DaviesBouldin') % evaluate the best number of clusters
+
+% all three methods returned different numbers, plot the silhouettes
+figure
+silhouette(peaks,ids(:,2))
+figure
+silhouette(peaks,ids(:,3))
+figure
+silhouette(peaks,ids(:,4))
+
+% plot 3 cluster solution in PCA space
+[ids_opt, crit_opt] = kmeans(score, 3, 'Replicates', 20, 'Options', opts); % 3 cluster optimal solution
+
+figure
+scatter(score(ids_opt==1,1), score(ids_opt==1,2), 20, [0.4, 0.9 0.4], 'filled')
+hold on;
+scatter(score(ids_opt==2,1), score(ids_opt==2,2), 20, [0.4, 0.4 0.9], 'filled')
+hold on;
+scatter(score(ids_opt==3,1), score(ids_opt==3,2), 20, [0.9, 0.4 0.4], 'filled')
+hold on;
+scatter(crit_opt(1:3,1), crit_opt(1:3,2), 200, 'kX')
+hold on;
+scatter(crit_opt(1:3,1), crit_opt(1:3,2), 200, 'kd')
+
+
+
+%%    K- means example of behavioural data
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% dataset from a speedating experiment where information about
+% both parties is collected
+
+% load data
+dating=readtable('./justafolderwithdata/modified_lovoo_v3_users_instances.csv');
+
+data=dating(:,[2:8 10:end-1]); % remove unwanted columns
+
+data=normalize(table2array(data)); % normalize data before clustering 
+
+% run PCA over data
+[coeff,score,latent,~,explained] = pca(data);
+figure
+plot(explained, '-*'); % plot percent var explained
+xlabel("Component Number")
+ylabel("Percent Variance Explained (%)")
+
+% lets plot first two components and see how the data scatters
+figure
+scatter(score(:,1), score(:,2), '.')
+
+% get subset of data to act as training and testing sets 
+[train, indx]= datasample(data, floor(2.*size(data,1)./3),'Replace', false);
+test= data(setdiff(1:length(data), indx),:);
+
+% Run K-means clustering across 1-10 ks
+opts = statset('Display','final');
+numclust=10; % max number of k
+ctrs = zeros(size(train,1), numclust);
+ids = zeros(size(train,1), numclust);
+sumd= zeros(1,numclust);
+
+for j=1:numclust
+[ids(:,j)] = kmeans(train, j, 'Replicates', 20, 'Options', opts);
+
+end
+
+% find the optimal solution for the best number of clusters
+eva_cali = evalclusters(train,ids,'CalinskiHarabasz') % evaluate the best number of k clusters
+eva_sil = evalclusters(train,ids,'silhouette') % evaluate the best number of k clusters
+eva_Dav = evalclusters(train,ids,'DaviesBouldin') % evaluate the best number of clusters
+
+% all three methods returned different numbers, plot the silhouettes
+figure
+silhouette(train,ids(:,2))
+figure
+silhouette(train,ids(:,3))
+figure
+silhouette(train,ids(:,7))
+
+score_test=score(setdiff(1:length(data), indx),:);
+% plot 3 cluster solution in PCA space
+[ids_opt, crit_opt] = kmeans(score_test, 2, 'Replicates', 20, 'Options', opts); % 3 cluster optimal solution
+
+figure
+scatter(score_test(ids_opt==1,1), score_test(ids_opt==1,2), 20, [0.4, 0.9 0.4], 'filled')
+hold on;
+scatter(score_test(ids_opt==2,1), score_test(ids_opt==2,2), 20, [0.4, 0.4 0.9], 'filled')
+scatter(crit_opt(1:2,1), crit_opt(1:2,2), 200, 'kX')
+scatter(crit_opt(1:2,1), crit_opt(1:2,2), 200, 'kd')
+
+score_test=score(setdiff(1:length(data), indx),:);
+% plot 2 cluster solution in PCA space
+[ids_opt, crit_opt] = kmeans(score_test, 2, 'Replicates', 20, 'Options', opts); % 3 cluster optimal solution
+
+figure
+scatter(score_test(ids_opt==1,1), score_test(ids_opt==1,2), 20, [0.4, 0.9 0.4], 'filled')
+hold on;
+scatter(score_test(ids_opt==2,1), score_test(ids_opt==2,2), 20, [0.4, 0.4 0.9], 'filled')
+scatter(crit_opt(1:2,1), crit_opt(1:2,2), 200, 'kX')
+scatter(crit_opt(1:2,1), crit_opt(1:2,2), 200, 'kd')
+
+% now that we classified the daters into groups, lets figure out if there
+% are any differences between these categories 
+data_explore=dating(:,[2:8 10:end-1]);
+data_explore=data_explore(indx, :);
+
+data_1=data_explore(ids(:,3)==1, :);
+
+data_2=data_explore(ids(:,3)==2, :);
+
+data_3=data_explore(ids(:,3)==3, :);
+
+[mean(data_1.age) mean(data_2.age)]
+
+[mean(data_1.counts_profileVisits) mean(data_2.counts_profileVisits)]
+
+[mean(data_1.counts_pictures) mean(data_2.counts_pictures) ]
+
+[mean(data_1.lang_count) mean(data_2.lang_count)]
+
+[mean(data_1.isVerified) mean(data_2.isVerified)]
+
+% In sum add lost of pictures to your dating profile, get verified, and
+% learn a new langugae (Does MATLAB count?)
+

@@ -29,6 +29,65 @@ reshape(data3d, [1,2,10,9]) % cannot add a dims
 reshape(data3d, [5,2,27])
 reshape(data3d, [30,9]) % but you can reduce dims
 
+%%  Descriptive Stats
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+load('./justafolderwithdata/Iris_2021_data.mat')
+
+mean(iris_data.PetalLength)
+median(iris_data.PetalLength)
+mode(iris_data.PetalLength)
+mean(table2array(iris_data(:,2:7)), 'omitnan') 
+mean(table2array(iris_data(:,2:7)), 'all')
+data=table2array(iris_data(:,2:7));
+mean(data(:))
+
+max(table2array(iris_data(:,2:7)))
+min(table2array(iris_data(:,2:7)))
+maxk(table2array(iris_data(:,2:7)),3)
+mink(table2array(iris_data(:,2:7)),3)
+
+std(table2array(iris_data(:,2:7)))
+std(table2array(iris_data(:,2:7)),1)
+help std
+std(table2array(iris_data(:,2:7)),0)
+std(table2array(iris_data(:,2:7)),0,2)
+std(table2array(iris_data(:,2:7)),1,2)
+range(table2array(iris_data(:,2:7)))
+var(table2array(iris_data(:,2:7)))
+
+%%  Dealing with missing data and outliers 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+a=1:10;
+a(2)=NaN
+
+a==NaN
+ismissing(a)
+rmmissing(a)
+a(ismissing(a))=intmin;
+
+a=1:100;
+a(22)=500;
+isoutlier(a)
+a>3*std(a)
+isoutlier(a, 'mean')
+isoutlier(a, 'percentiles', [1 99])
+% there are many methods for determining oiutliers 
+
+
+% exercise 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% load in the speed dating data, remove NaN and compute descriptive stats
+% of central tendency and dispersion. Try this without removing NaN, can
+% you do it using just the function mean for example? 
+
+
+% Confidence Intervals 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 %% What Not to plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure
