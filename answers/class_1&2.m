@@ -186,14 +186,25 @@ csvwrite('image.txt', mean(image,3))
 
 % 1) read the RPDR_contestant_data and compute the mean age of all contestants 
 
+table=readtable('./justafolderwithdata/RPDR_contestant_data.csv');
+
+mean(table2array(table(:,4)))
 
 % 2) How many special episodes were there on RPDR? How many Finale
 % episodes? 
 
+epi=readtable('./justafolderwithdata/RPDR_episode_data.csv');
+
+sum(table2array(epi(:,5)))
 
 % 3) What was the largest number of epsidoes for a season?
 % Note you need to read about cells and for loops below !
 
+c={'S01','S02','S03','S04'};
+for i=1:4
+     max(epi.episode(strcmp(epi.season, c{1,i})))
+     
+end
 
 % hint use strcmp()
 
@@ -427,6 +438,22 @@ end
 % 1) move to the data_from_sub directory, loop through files, select the ones you
 % want, open the file, extract the data, and save it! Plot a histogram of
 % data
+cd('./justafolderwithdata/')
+files= dir('./data_from_sub/sub*.mat');
+data_placeholder=[];
+
+for i=1:length(files)
+
+    if (mod(str2num( files(i,1).name(5:7) ),2)~=0)
+        disp(strcat(files(i,1).name, "   SHES ODD"))
+        load(strcat('./data_from_sub/',files(i,1).name));
+        data_placeholder(:,:)=data;
+
+    end
+end
+
+histogram(reshape(data_placeholder,1,size(data_placeholder,1)*size(data_placeholder,2)), 'FaceColor','red')
+
 
 % 2) using the full_drag table, compute how many different cities are
 % represented on drag race
