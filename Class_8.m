@@ -285,7 +285,7 @@ indx_virginica=find(strcmp(iris_data.Species, 'virginica'));
 
 % Note that variables outside the () will be FIXED and those inside will be
 % RANDOM, this will be explained in class
-formula         = 'SepalWidth ~SepalLength + (1|Species)';
+formula         = 'SepalWidth ~ SepalLength + (1|Species)';
 tbl             = table(iris_data.SepalLength,iris_data.SepalWidth,iris_data.Species,  'VariableNames',{'SepalLength','SepalWidth','Species'});
 lme             = fitlme(tbl,formula);
 

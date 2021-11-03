@@ -47,9 +47,10 @@ ints(bools)
 bool1=[1 0 1 0 1]
 bool2=[1 0 0 1 1]
 
-bool1== bool2
+bool1 == bool2
 bool1 & bool2
 bool1 | bool2
+bool1 || bool2
 bool1(1) && bool2(1)
 bool1(2) || bool2(2)
 
@@ -65,7 +66,7 @@ cast(num, 'double')
 
 % differences between strings and cahrs
 secret_message = ['Homer';  'Olaf' ; 'Nathan'; 'Ethan'; 'Yusef']
-secret_message = ["Homer";  "Olaf" ; "Nathan"; "Ethan"; "Yusef"]
+secret_message = ["Homer is Greek";  "Olaf" ; "Nathan"; "Ethan"; "Yusef"]
 
 secret_message=['hel'; 'ooo']
 
@@ -111,13 +112,21 @@ z=zeros(10,10);
 z=z+10;
 z=z-9;
 z=z*3;
+z^2
+z.^2
+
+z*ar
+
+(10,10) * (10, 9) -> (10,9)
+(12, 1) * (1, 20) -> (12, 20)
+(12, 3) * (2 , 6) !!!!!
 
 z.*z % IS DIFFERENT THAN ' * '
 
 z*z % THIS IS THE MATRIX PRODUCT OR DOT PRODUCT
 
 y=ones(1,10)+13;
-z*y'
+z*y' % flips dim (1, 10) -> (10, 1)
 
 % MATRIX AND ARRAYS
 a=randi([0,100],10,10); % make random matrix of intergers 
@@ -129,6 +138,9 @@ a(1,1:5) % 1st element of the 1st 5 cols
 multi=randi([-100,100],30,121,64); % make random matrix of intergers 
 
 multi=randi([-100,100],30,121,64,10); % make random matrix of intergers 
+multi=randi([-100,100],30,121,1,10);
+size(multi)
+multi2 = squeeze(multi)
 
 % Reshaping a Matrix
 a=randi([0,100],10,10); % make random matrix of intergers 
@@ -141,6 +153,8 @@ reshape(a, [2,50])
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % useful functions for file navigation:
+
+cd '/Users/jasondsc/Desktop/workshop_MATLAB_2.0/'
 
 ls() % list files in your directory
 dir() % struct with files of any given directory 
@@ -158,6 +172,7 @@ close all
 cd("./justafolderwithdata/")
 load('raw_spike_data.mat')
 save("temp_data.mat") % saves workspace to file 
+load('temp_data.mat', 'var2')
 
 image=imread('./MemeFolder/ladygaga5.jpg');
 imagesc(image)
@@ -255,12 +270,12 @@ unique([set1;set2])
 listoffiles=dir("./");
 
 drag_race=readtable('./justafolderwithdata/RPDR_contestant_data.csv')
-[uniquenames, ids, ~]=unique(drag_race.contestant)
-drag_race=drag_race(ids,:)
+[uniquenames, ids, ~]=unique(drag_race.contestant) % note table2array(drag_race(:,4)) to convert to array 
+drag_race=drag_race(ids,:) % cleaning data remove repeat participants
 drag_race = sortrows(drag_race,'contestant','ascend');
 score=readtable('./justafolderwithdata/RPDR_contestant_score.csv')
 sum(strcmp(score.contestant, drag_race.contestant))
-full_drag=[drag_race, score(:,3:7)]
+full_drag=[drag_race, score(:,3:7)]  % adding cols (note ; will add rows)
 StructArray = table2struct(full_drag);
 
 table2array(score(:,3:7))
@@ -305,6 +320,7 @@ study.eeg=rand(100,1000);
 
 save('filename.mat', 'study')
 
+
 % cells
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % are like containers that hold different tupe of info and of different
@@ -317,8 +333,9 @@ c={student;study;drag_race; 'MARIAH CAREY RULES'};
 cellplot(c)
 
 c={randi([0,100],10,1),randi([0,100],5,1),randi([0,100],2,1)}
+c{2,1}= [1,2,5,9,34];
 
-cellfun(@mean, c)
+cellfun(@mean, c) % 'UniformOutput', false wont make a diff
 
 
 c={randi([0,100],10,10),randi([0,100],5,5),randi([0,100],2,2)}
@@ -343,8 +360,10 @@ cellfun(@mean, c,'UniformOutput',false)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 a=randi(100,1);
 
+
 if a< 30
     disp("she's small")
+    aa='new var'
 elseif a <70
     disp("she's okay")
 else
@@ -359,14 +378,13 @@ end
 
 if a< 30
     disp("she's small")
-elseif a <70
+elseif a > 70
     disp("she's okay")
 end
 
 % Conditionals Switch
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [dayNum, dayString] = weekday(date, 'long', 'en_US');
-dayString='Oct';
 tic
 switch dayString
 case 'Monday'
@@ -387,17 +405,43 @@ otherwise
     disp('YAS BITCH WERK')
 end
 toc
+
+tic
+if strcmp(dayString, 'Monday')
+     disp("UGH Monday")
+elseif strcmp(dayString, 'Tuesday')
+     disp("I'm already tired")
+elseif  strcmp(dayString, 'Wednesday')
+    disp("HUMP DAY")
+elseif strcmp(dayString, 'Thursday')
+    disp("I HAVE CLASS TODAY")
+elseif  strcmp(dayString, 'Friday')
+    disp("FRIYAY")
+elseif  strcmp(dayString, 'Saturday')
+    disp("weekend")
+elseif  strcmp(dayString, 'Sunday')
+    disp("weekend")
+else
+    disp('YAS BITCH WERK')
+end
+toc
+   
+
 % For Loop
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 arr=rand(1,100);
 
-for i= 1:2:100
+for i= 1:100
         if mod(i,9)==0
             disp(i)
             disp(" is a multiple of 9!!")
         end
+        
+        mysterynum(i)=i;
+
 end
 
+% nested for loops
 for i= 1:2:100
     
     for j= 1:100
@@ -431,7 +475,8 @@ end
 % 2) using the full_drag table, compute how many different cities are
 % represented on drag race
 
-
 % 3) using the full_drag table, compute a histogram of the age of
 % participants
+
+
 
