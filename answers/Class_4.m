@@ -231,6 +231,15 @@ ylabel('Power')
 %try plotting three oscilations in one graph and overlay them with
 %transparency 
 
+x = linspace(-10,10,200);
+y = cos(x);
+figure
+plot(x,y, 'Color', [0, 0, 1, 0.2])
+hold on
+plot(x,y, 'Color', [1, 1, 0, 0.2])
+hold on
+plot(x,y, 'Color', [1, 0, 0, 0.2])
+
 
  % Error Bars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -55,7 +55,13 @@ plot(t,data)
 
 % try generating random numbers between -1 and 1 using rand
 
+t=rand(100,1000) - rand(100,1000);
+
 % try generating random doubles between 1 and 10 using rand
+
+t=rand(100,100) + randi(10, [100,100])
+
+t=(9*rand(100,100)) +1;
 
 % try generating random doubles between 5 and 25 using randi
 

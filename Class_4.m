@@ -16,12 +16,15 @@ data1= rand(10,9);
 data2= rand(10,9);
 data3= rand(10,9);
 
+hist(rand(1,10000))
+hist(randn(1,10000))
+
 data3d=cat(3,data1,data2,data3); % stack 2d matrix into 3d
 
 data3'
 data3d' % cannot transpose a 3d matrix
 
-permute(data3d, [2,3,1]) % reshpaes matrix by reordeing dims
+new_data=permute(data3d, [2,3,1]) % reshpaes matrix by reordeing dims
 
 dataall=[data1(:),data2(:),data3(:)]; % use data(:) to access the flattened array
 
@@ -37,12 +40,27 @@ load('./justafolderwithdata/Iris_2021_data.mat')
 mean(iris_data.PetalLength)
 median(iris_data.PetalLength)
 mode(iris_data.PetalLength)
-mean(table2array(iris_data(:,2:7)), 'omitnan') 
-mean(table2array(iris_data(:,2:7)), 'all')
+
+hist(iris_data.PetalLength)
+
+iris_data2=table2array(iris_data(:,2:7));
+
+iris_data2([20 19 28 17 10 29 18 10], [2 4 6]) = NaN
+
+mean(iris_data2(:,2:6)) 
+mean(iris_data2(:,2:6), 'omitnan') 
+
+mean(table2array(iris_data(:,2:7)),2) % along one DIM
+
+mean(reshape(table2array(iris_data(:,2:7)), [1, 6*300] )) 
+mean(table2array(iris_data(:,2:7)), 'all') % mean of ALL data 
 data=table2array(iris_data(:,2:7));
 mean(data(:))
 
-max(table2array(iris_data(:,2:7)))
+max(table2array(iris_data(:,2:7)),[],2)
+
+max(table2array(iris_data(:,2:7))')
+
 min(table2array(iris_data(:,2:7)))
 maxk(table2array(iris_data(:,2:7)),3)
 mink(table2array(iris_data(:,2:7)),3)
@@ -50,6 +68,7 @@ mink(table2array(iris_data(:,2:7)),3)
 std(table2array(iris_data(:,2:7)))
 std(table2array(iris_data(:,2:7)),1)
 help std
+std(table2array(iris_data(:,2:7)),[], 2)
 std(table2array(iris_data(:,2:7)),0)
 std(table2array(iris_data(:,2:7)),0,2)
 std(table2array(iris_data(:,2:7)),1,2)
@@ -66,6 +85,8 @@ a==NaN
 ismissing(a)
 rmmissing(a)
 a(ismissing(a))=intmin;
+
+a(ismissing(a))=mean(a, 'omitnan');
 
 a=1:100;
 a(22)=500;
@@ -86,6 +107,33 @@ isoutlier(a, 'percentiles', [1 99])
 
 % Confidence Intervals 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+data2= randn(1,30);
+
+hist(data2)
+
+mean(data2)
+std(data2)
+
+for i=1:1000
+    data2= randn(1,30);
+UCI= mean(data2)+ 1.96* (std(data2)/sqrt(length(data2)))
+LCI= mean(data2)- 1.96* (std(data2)/sqrt(length(data2)))
+
+
+end
+
+
+% bootstrapping 
+
+data_11= randn(1,30);
+
+id=randperm(length(data_11)); % without replacemnt 
+
+id=randi(length(data_11)); % with replacemnt 
+
+id(1:10)
+
 
 
 %% What Not to plot
@@ -204,9 +252,7 @@ plot(x,y)
 xticks([-3*pi -2*pi -pi 0 pi 2*pi 3*pi])
 xticklabels({'-3\pi','-2\pi','-\pi','0','\pi','2\pi','3\pi'})
 yticks([-1 -0.8 -0.2 0 0.2 0.8 1])
-
 xticklabels({'Load','No Load','Attention','No Attention','Sleepy','dead','alive'})
-yticks([-1 -0.8 -0.2 0 0.2 0.8 1])
 
 % plot multiple y axes
 figure
@@ -226,7 +272,7 @@ ylabel('Micro Volts')
 yyaxis right
 ylabel('Power')
 
- % exercise 1
+ % exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %try plotting three oscilations in one graph and overlay them with
 %transparency 
@@ -234,6 +280,13 @@ ylabel('Power')
 
  % Error Bars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+y=rand(100,10);
+x=1:10:100;
+figure
+errorbar(x, mean(y),std(y)) % you can plot data with error bars using the errorbar function
+
+
 
 y=rand(100,10);
 x=1:10:100;
@@ -576,17 +629,5 @@ g.draw();
 % criterion) across all integer x values 
 
 
-load('./justafolderwithdata/Iris_2021_data.mat');
-indx_versicolor=find(strcmp(iris_data.Species, 'versicolor'));
-indx_virginica=find(strcmp(iris_data.Species, 'virginica'));
-data= iris_data([indx_versicolor,indx_virginica],:);
-
-% plot the data to see where we could draw the line between the two species
-figure
-histogram(data.PetalLength(1:100),30)
-hold on
-histogram(data.PetalLength(101:end), 30)
-legend({'versicolor', 'virginica'})
-xline(3.5, 'LineWidth', 10)
 
 

@@ -17,6 +17,7 @@ X = randn(8,8);
 Y = randn(8,8);
 Z = randn(8,8);
 
+corr(X)
 corr(X,Y) % returns the pairwise correlation of columns 
 corr2(X,Y) % returns cor coef for vectorized matricies
 corrcoef(X,Y) % returns the corr coef for entire 2d matrix
@@ -135,7 +136,6 @@ t_unpaired= (mean1-mean2)/(sp*sqrt((1/n)+(1/n)))
 % data. We want to randomly pick some subset to permute so the second input
 % of ranperm needs to change size...
 
-
 indx_switch=randperm(length(group2),length(group2)/2);
 perm1=group1;
 perm2=group2;
@@ -154,7 +154,6 @@ sp= sqrt(((n-1)*var1^2 + (n-1)*var2^2)/ (n + n -2));
 t_unpaired= (mean1-mean2)/(sp*sqrt((1/n)+(1/n))) 
 [h,p,ci,stats]=ttest2(perm1, perm2, 'Vartype', 'equal')
 stats.tstat
-
 
 % exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -180,6 +179,118 @@ mean(perm2)
 mean(group1)
 mean(group2)
 
+
+%%  ANOVA 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+dating= readtable('./justafolderwithdata/SpeedDatingData.csv');
+
+group1= dating.income(dating.match==0);
+group1=group1(~isnan(group1));
+group2= dating.income(dating.match==1);
+group2=group2(~isnan(group2));
+group1=randsample(group1, length(group2));
+
+% ANOVAs test if the sample means are best explained by one distribution
+% or if they come from multiple ones 
+figure
+histogram(randn([1,10000]))
+hold on
+histogram(randn([1,1000]) +2)
+histogram(randn([1,1000])+4)
+histogram(randn([1,1000])-3)
+
+
+figure
+histogram(randn([1,10000]))
+hold on
+histogram(randn([1,1000]) +0.75)
+histogram(randn([1,1000])+0.1)
+histogram(randn([1,1000])-0.42)
+
+figure
+histogram(group1)
+hold on;
+histogram(group2)
+
+% ASSUMPTIONS OF ANOVA
+
+% one-sample Kolmogorov-Smirnov test 
+% tests the assumption of normality 
+h = kstest(group1)
+h = kstest(group2)
+
+skewness(group1)
+skewness(group2) % -0.5 to 0.5 approximatley symmetric 
+
+% transformations to fix skewness
+skewness(sqrt(group1))
+skewness(log(group1))
+
+% does this fix our normality issue? 
+h = kstest(sqrt(group1))
+h = kstest(log(group1))
+
+% Homogeneity of variance (equal var) Barlett Test 
+vartestn([group1, group2]) % test along the columns
+
+data4anova=[group1, group2]; % each column is one group of ONE FACTOR
+% ONE WAY ANOVA
+[p,tbl,stats] = anova1(data4anova)
+
+% SS is the sum of squares for the factor (i.e. variancde due to factor of
+% intrest)
+% Error is the variance assoacited to noise i.e., the variance within a
+% group 
+ 
+% the f value is what we want to look at, it is the ratio of the varaince
+% asscoiated to our factor of intrest over the varaince within the groups
+% (noise) aka unexplained variance 
+
+group1= dating.income(dating.match==0 & dating.gender==0);
+group1=group1(~isnan(group1));
+group2= dating.income(dating.match==1 & dating.gender==0);
+group2=group2(~isnan(group2));
+
+group3= dating.income(dating.match==0 & dating.gender==1);
+group3=group3(~isnan(group3));
+group4= dating.income(dating.match==1 & dating.gender==1);
+group4=group4(~isnan(group4));
+
+group1=randsample(group1, length(group4));
+group2=randsample(group2, length(group4));
+group3=randsample(group3, length(group4));
+
+% TWO WAY ANOVA
+data4anova=[group1, group2; group3, group4];
+[p,tbl,stats] = anova2(data4anova)
+
+
+% THREE WAY ANOVA AND UNBALANCED 
+group1= dating.income(dating.match==0 & dating.gender==0);
+group1=group1(~isnan(group1));
+group2= dating.income(dating.match==1 & dating.gender==0);
+group2=group2(~isnan(group2));
+
+group3= dating.income(dating.match==0 & dating.gender==1);
+group3=group3(~isnan(group3));
+group4= dating.income(dating.match==1 & dating.gender==1);
+group4=group4(~isnan(group4));
+
+data4anova=[group1; group2; group3; group4];
+match= [zeros([1,length(group1)]),ones([1,length(group2)]),zeros([1,length(group3)]),ones([1,length(group4)])];
+gender= [zeros([1,length(group1)+length(group2)]),ones([1,length(group3)+length(group4)])];
+[p,tbl,stats] = anovan(data4anova, {match, gender}, 'model',2,'varnames',{'match','gender'})
+
+
+% three way ANOVA (N way)
+y = [52.7 57.5 45.9 44.5 53.0 57.0 45.9 44.0 2.7 7.5 5.9 4.5 503.0 7.0 5.9 4.0]';
+oddyear = [1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2]; 
+snow = {'hi';'hi';'lo';'lo';'hi';'hi';'lo';'lo';'hi';'hi';'lo';'lo';'hi';'hi';'lo';'lo'}; 
+month = {'Dec';'Dec';'Dec';'Dec';'june';'june';'june';'june';'Dec';'Dec';'Dec';'Dec';'june';'june';'june';'june'};
+
+[p,tbl,stats] = anovan(y, {oddyear, snow, month}, 'model',3)
+
+
 % exercise 3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -191,6 +302,7 @@ mean(group2)
 %takse function dprime and modify it so that it works along the columns of
 %a matrix
 % 
+
 %%  Signal Detetction Theory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -331,7 +443,7 @@ area(0:1:x-1,f1(:,1:x),'FaceColor', [0.3 0.3 0.8],'EdgeColor', [0.3 0.3 0.3], 'F
 area(x-1:1:220,f2(:,x:end),'FaceColor', [0.8 0.3 0.3],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.2, 'EdgeAlpha', 0)
 area(x-1:1:220,f1(:,x:end),'FaceColor', [0.0 0.0 0.9],'EdgeColor', [0.3 0.3 0.3], 'FaceAlpha', 0.1, 'EdgeAlpha', 0)
 xlim([0 201])
-saveas(gcf, strcat('./ROC_', int2str(93), '.pdf'))
+%saveas(gcf, strcat('./ROC_', int2str(93), '.pdf'))
 
 
 %%  AUC and ROC in MATLAB

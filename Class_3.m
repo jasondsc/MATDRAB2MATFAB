@@ -35,13 +35,13 @@ fs = 1000; % Sampling frequency (samples per second)
 dt = 1/fs; % seconds per sample 
 StopTime = 3; % seconds 
 t = (0:dt:StopTime)'; % seconds 
-F = 6; % Sine wave frequency (hertz) 
-data = 2*sin(2*pi*F*t) +1;
+F = 2; % Sine wave frequency (hertz) 
+data = 0.1*sin(2*pi*F*t) +2;
 figure
 plot(t,data)
 
 % add noise
-data = sin(2*pi*F*t)+0.1*rand(length(data),1);
+data = sin(2*pi*F*t)+0.6*randn(length(data),1);
 plot(t,data)
 
 % nest signals 
@@ -54,6 +54,8 @@ plot(t,data)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % try generating random numbers between -1 and 1 using rand
+
+rand(10,1)-rand(10,1)
 
 % try generating random doubles between 1 and 10 using rand
 
@@ -107,9 +109,9 @@ t = (0:dt:StopTime)'; % seconds
 F = 60; % Sine wave frequency (hertz) 
 F2=10;
 data = sin(2*pi*F*t);
-data = sin(2*pi*F*t)+rand(length(data),1) +  sin(2*pi*F2*t) + 1/length(data)*[1:length(data)]';
+data = sin(2*pi*F*t)+rand(length(data),1) +  sin(2*pi*F2*t) + 1/length(data)*10*[1:length(data)]';
 plot(t,data)
-plot(t,detrend(data))
+plot(t,detrend(data)) % same thing as removing the mean 
 
 %% Normalizing data and removing outliers
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,6 +120,7 @@ plot(t,detrend(data))
 temp_data=randi(100,[10,100]);
 % try removing the data's mean
 temp_data-mean(temp_data)
+mean(temp_data-mean(temp_data))% remove mean from col
 temp_data-mean(temp_data,2)
 temp_data-mean(mean(temp_data))
 
@@ -126,7 +129,7 @@ normalize(temp_data)
 normalize(temp_data, 'range')
 normalize(temp_data, 'center')
 % normalize does the equevelant of ....
-(temp_data-mean(temp_data))./std(temp_data)
+(temp_data-mean(temp_data))./std(temp_data) % THIS is a z-score
 
 % filloutliers can remove data that does not seem to belong
 data = sin(2*pi*F*t)+rand(length(data),1) +  sin(2*pi*F2*t)
@@ -135,7 +138,7 @@ plot(t,data)
 plot(filloutliers(data, 'linear'))
 
 reshape(temp_data, [5, 200])
-permute(temp_data, [2,1])
+permute(temp_data, [2,1]) % reorders dim of matrix [ 1 2 3] -> [ 3 1 2]
 
 
 %% Spectral Power, FFTs, and PSDs
@@ -286,7 +289,7 @@ ylabel('Micro Volts ');
 title('Unfiltered Single Electrode Spike Recording '); % clear slow drifts in data that need to be removed
 
 % create and apply bandpass butter worth filter
-[b,a] = butter(3,[500/(sr/2) 8000/(sr/2)], 'bandpass'); % create butterworth filter 
+[b,a] = butter(3,[2/(sr/2) 200/(sr/2)], 'bandpass'); % create butterworth filter 
 filtered_data=filter(b,a,raw_spike_data); % apply butter worth filter 
 
 subplot(2,1,2)
@@ -349,8 +352,7 @@ soundsc(y)
 pause(2)
 soundsc(outhi)
 
-
-bhi = fir1(34,[100/(Fs/2) 1000/(Fs/2) ],'bandpass');
+bhi = fir1(34,[100/(Fs/2) 300/(Fs/2) ],'bandpass');
 freqz(bhi,1)
 
 outhi = filter(bhi,1,y);
@@ -429,10 +431,32 @@ freqz(b,a)
 
 % exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-% try highpass and lowpass filtering the electrophysiology data into
+% Try highpass and lowpass filtering the electrophysiology data into
 % fast and slow oscilatory components. Try adding them back together and
-% see what happens, try moving around the filter frequency. What could be
+% see what happens. Try moving around the filter frequency. What could be
 % causing this?
+
+% create and apply lowpass butter worth filter
+[b,a] = butter(3,[5/(sr/2)], 'low'); % create butterworth filter 
+filtered_data1=filter(b,a,raw_spike_data); % apply butter worth filter 
+
+% create and apply lowpass butter worth filter
+[b,a] = butter(3,[5/(sr/2)], 'high'); % create butterworth filter 
+filtered_data2=filter(b,a,raw_spike_data); % apply butter worth filter 
+
+filtered_data3= filtered_data1+ filtered_data2;
+
+figure
+subplot(1,3,1)
+plot(raw_spike_data)
+subplot(1,3,2)
+plot(filtered_data3)
+subplot(1,3,3)
+plot(raw_spike_data-filtered_data3)
+
+% are they the same?
+sum(raw_spike_data==filtered_data3)
+
 
 
 %% Hilbert Transformation
@@ -482,6 +506,25 @@ hold on
 plot(abs(hil), '-r')
 subplot(1,2,2)
 plot(angle(hil))
+
+% create and apply lowpass butter worth filter
+[b,a] = butter(3,[100/(sr/2)], 'low'); % create butterworth filter 
+filtered_data1=filter(b,a,raw_spike_data); % apply butter worth filter 
+hil1=hilbert(filtered_data1);
+
+% create and apply lowpass butter worth filter
+[b,a] = butter(3,[100/(sr/2)], 'high'); % create butterworth filter 
+filtered_data2=filter(b,a,raw_spike_data); % apply butter worth filter 
+hil2=hilbert(filtered_data2);
+figure
+subplot(1,2,1)
+plot(filtered_data1)
+hold on
+plot(abs(hil1), '-r')
+subplot(1,2,2)
+plot(filtered_data2)
+hold on
+plot(abs(hil2), '-r')
 
 % run above analysis by filtering data and concatinating instantaneous
 % power
@@ -579,6 +622,6 @@ title('Filtered Single Electrode Spike Recording ');
 % exercise 3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% try using the mean, median, and std of the data determine the cutoff for
+% try using the mean, median, and std of the data to determine the cutoff for
 % detecting peaks.
 

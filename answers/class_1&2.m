@@ -432,33 +432,41 @@ end
 
 
 
+
 %% Exercises class 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % 1) move to the data_from_sub directory, loop through files, select the ones you
 % want, open the file, extract the data, and save it! Plot a histogram of
 % data
-cd('./justafolderwithdata/')
-files= dir('./data_from_sub/sub*.mat');
-data_placeholder=[];
 
-for i=1:length(files)
+cd './justafolderwithdata/data_from_sub'
 
-    if (mod(str2num( files(i,1).name(5:7) ),2)~=0)
-        disp(strcat(files(i,1).name, "   SHES ODD"))
-        load(strcat('./data_from_sub/',files(i,1).name));
-        data_placeholder(:,:)=data;
+list=dir('sub*');
 
-    end
+for i = 1:length(list)
+    
+    load(list(i).name)
+
+    newdata(i,:,:)=data;
+    
+    
 end
 
-histogram(reshape(data_placeholder,1,size(data_placeholder,1)*size(data_placeholder,2)), 'FaceColor','red')
+
+hist(reshape((newdata), [20*20*200,1]))
 
 
 % 2) using the full_drag table, compute how many different cities are
 % represented on drag race
 
+length(unique(drag_race.hometown))
+
 
 % 3) using the full_drag table, compute a histogram of the age of
 % participants
+
+hist(drag_race.age)
+
+
 

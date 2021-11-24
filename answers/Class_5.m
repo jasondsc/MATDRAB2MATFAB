@@ -159,10 +159,40 @@ stats.tstat
 % exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% create a loop to iterate over 100 permutations of your data. Save the
+% create a loop to iterate over 1000 permutations of your data. Save the
 % result of each permutation (i.e., the resulting t-value) and once done,
 % plot the histogram of your null result. What does it look like?
 % Use descriptive stats to tell me what your null distribution is like.
+
+for i=1:1000
+indx_switch=randperm(length(group2),length(group2)/2);
+perm1=group1;
+perm2=group2;
+
+perm1(indx_switch)=group2(indx_switch);
+perm2(indx_switch)=group1(indx_switch);
+
+% compute t again
+n=length(perm1);
+var1=std(perm1);
+var2=std(perm2);
+mean1=mean(perm1);
+mean2=mean(perm2);
+
+sp= sqrt(((n-1)*var1^2 + (n-1)*var2^2)/ (n + n -2));
+t_unpaired= (mean1-mean2)/(sp*sqrt((1/n)+(1/n))) 
+[h,p,ci,stats]=ttest2(perm1, perm2, 'Vartype', 'equal')
+permutation_t(i)=stats.tstat;
+end
+
+histogram(permutation_t)
+
+prctile(permutation_t, 0.05) % Note that this is the equivelant of a one tail test (less than)
+    % to split the tails, look at the abs and 0.025 percentile 
+
+orig_t=-0.7489;
+ 
+sum(permutation_t < orig_t)/length(permutation_t) % test for smaller (larger t value but negative) 
 
 
 %%  Bootstrapping 
@@ -186,6 +216,20 @@ mean(group2)
 % bootstrap your data 100 times and save the mean each time. Now that you
 % have 100 estimates of your data plot them and compare it to your actual/
 % observed mean. Tell me what you notice.
+
+for i=1:100
+    
+    indx_switch=randi(length(group2),1,length(group2));
+perm1=group1(indx_switch);
+perm2=group2(indx_switch);
+
+bootmean1=mean(perm1);
+bootmean2=mean(perm2);
+
+end
+
+mean(bootmean1)
+mean(bootmean2)
 
    
 %takse function dprime and modify it so that it works along the columns of
