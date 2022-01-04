@@ -102,75 +102,8 @@ for k = 1 : length(aFitted)
   yFit = bFitted(k);
   x = dating.age(k);
   plot([x, x], [yFit, yActual], '--','Color', 'm');
+  
 end
-
-%%  Nuissance variables and Residulas 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Nuissance variables are variables we do not care about and want to remove
-% their effect from our data
-
-% Let us imagine that we think age is a confound in online dating, so we
-% wish to remove the effect of age on profile visits 
-
-% Regress out effect 
-X = table(ones(size(dating.age)), dating.age);
-[b,bint,r,rint,stats] = regress(dating.counts_profileVisits,table2array(X))    % Removes NaN data
-Slope = b(2)
-Intercept = b(1)
-aFitted = dating.age; % Evalutate the fit as the same x coordinates.
-bFitted = Intercept + aFitted.*Slope;
-% compute residuals as y minus slope of effect (leave the intercept alone
-% for now)
-residulas = dating.counts_profileVisits - aFitted.*Slope;
-
-% fit a line between age and the residuals 
-X = table(ones(size(dating.age)), dating.age);
-[b,bint,r,rint,stats] = regress(residulas,table2array(X))    % Removes NaN data
-Slope2 = b(2)
-Intercept2 = b(1)
-aFitted2 = dating.age; % Evalutate the fit as the same x coordinates.
-bFitted2 = Intercept2 + aFitted.*Slope2;
-
-% plot the original effect and the outcome after removing the effect of age
-figure
-subplot(1,2,1)
-histogram(dating.counts_profileVisits)
-subplot(1,2,2)
-histogram(residulas)
-
-figure
-subplot(1,2,1)
-scatter(dating.age,dating.counts_profileVisits)
-hold on
-plot(aFitted, bFitted)
-xlabel('Age', 'FontSize', 20);
-ylabel('Profile Visits', 'FontSize', 20);
-ylim([0 30000])
-subplot(1,2,2)
-scatter(dating.age,residulas)
-hold on
-plot(aFitted2, bFitted2)
-xlabel('Age', 'FontSize', 20);
-ylabel('Profile Visits', 'FontSize', 20);
-ylim([0 30000])
-
-
-% you can also fit linear regressions with the function fitlm
-% See MATLAB's webpage for more details about differences 
-X = table( dating.age, dating.counts_profileVisits);
-fit=fitlm(X);
-fit.Residuals % retruns table with different residulas 
-% Raw represents observed y value - predicted 
-
-% exercise 1
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% try running the above code where we remove the effect of age but also
-% remove the intercept. What happens? What do the residulas look like now?
-% Compare these to the r. What is the Intercept based on these results? 
-% Why would you want to remove the interceot? When
-% Would it be a good idea to keep the intercept?
-
 
 %%  Effects of Coding Scheme on Regressions and Interpretations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -210,6 +143,77 @@ betas_int=table(bint, bint2,  bint3)
 % try making up your own coding schme (e.g., 1 2) how does this change the value of the
 % beta and its interpretation. What does that intercept in your model
 % reflect now?
+
+
+
+%%  Nuissance variables and Residulas 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Nuissance variables are variables we do not care about and want to remove
+% their effect from our data
+
+% Let us imagine that we think age is a confound in online dating, so we
+% wish to remove the effect of age on profile visits 
+
+% Regress out effect 
+X = table(ones(size(dating.age)), dating.age);
+[b,bint,r,rint,stats] = regress(dating.counts_profileVisits,table2array(X))    % Removes NaN data
+Slope = b(2)
+Intercept = b(1)
+aFitted = dating.age; % Evalutate the fit as the same x coordinates.
+bFitted = Intercept + aFitted.*Slope;
+% compute residuals as y minus slope of effect (leave the intercept alone
+% for now)
+residulas = dating.counts_profileVisits - aFitted.*Slope;
+
+
+% fit a line between age and the residuals 
+X = table(ones(size(dating.age)), dating.age);
+[b,bint,r,rint,stats] = regress(residulas,table2array(X))    % Removes NaN data
+Slope2 = b(2)
+Intercept2 = b(1)
+aFitted2 = dating.age; % Evalutate the fit as the same x coordinates.
+bFitted2 = Intercept2 + aFitted.*Slope2;
+
+% plot the original effect and the outcome after removing the effect of age
+figure
+subplot(1,2,1)
+histogram(dating.counts_profileVisits)
+subplot(1,2,2)
+histogram(residulas)
+
+figure
+subplot(1,2,1)
+scatter(dating.age,dating.counts_profileVisits)
+hold on
+plot(aFitted, bFitted)
+xlabel('Age', 'FontSize', 20);
+ylabel('Profile Visits', 'FontSize', 20);
+ylim([0 30000])
+subplot(1,2,2)
+scatter(dating.age,residulas2)
+hold on
+plot(aFitted2, bFitted2)
+xlabel('Age', 'FontSize', 20);
+ylabel('Profile Visits', 'FontSize', 20);
+ylim([0 30000])
+
+
+% you can also fit linear regressions with the function fitlm
+% See MATLAB's webpage for more details about differences 
+X = table( dating.age, dating.counts_profileVisits);
+fit=fitlm(X);
+fit.Residuals % retruns table with different residulas 
+% Raw represents observed y value - predicted 
+
+% exercise 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% try running the above code where we remove the effect of age but also
+% remove the intercept. What happens? What do the residulas look like now?
+% Compare these to the r. What is the Intercept based on these results? 
+% Why would you want to remove the interceot? When
+% Would it be a good idea to keep the intercept?
+
 
 
 %%  Logistic Regression

@@ -24,9 +24,21 @@ hold on
 plot(f)
 end
 
-[f, gof, output]=fit(iris_data.InstagramLikes, iris_data.Availability, 'poly')
+figure
+[f, gof, output]=fit(iris_data.InstagramLikes, iris_data.Availability, strcat('poly55'))
+fits{i}=f;
+fits_gof{i}=gof;
+fits_out{i}=output;
+scatter(iris_data.InstagramLikes, iris_data.Availability,20)
+hold on
+plot(f)
+
 
 [P,S]=polyfit(iris_data.InstagramLikes, iris_data.Availability,200)
+f=polyfit(iris_data.InstagramLikes, iris_data.Availability,200)
+scatter(iris_data.InstagramLikes, iris_data.Availability,20)
+hold on
+plot(f)
 
 [P,S]=polyfit(iris_data.InstagramLikes, iris_data.Availability,2)
 
@@ -229,11 +241,67 @@ X.Properties.VariableNames = {'Intercept', 'Species'};
 % stats returns the R2, the F, the p-value, and the estimated error
 % variance
 
+
+predicted=(data.Species_coded * b(2)) +b(1);
+data.Sepal_Width- predicted
+
+
 % let us explore b
 disp(b) 
 
+
+[b,bint,r,rint,stats] = regress(data.Sepal_Width, data.Speal_Length)
+
+figure
+scatter(data.Sepal_Width, data.Speal_Length)
+[p,tbl, stats]= anova1(data.Sepal_Width, data.Speal_Length)
+
 % now let us run an ANOVA and compare the effects
 [p,tbl, stats]= anova1(data.Sepal_Width, data.Species)
+
+mean(data.Sepal_Width)
+mean(data.Sepal_Width(strcmp(data.Species,'setosa')))
+mean(data.Sepal_Width(strcmp(data.Species,'versicolor')))
+mean(data.Sepal_Width(strcmp(data.Species,'virginica')))
+
+d1=mean(data.Sepal_Width)-mean(data.Sepal_Width(strcmp(data.Species,'setosa')))
+d2=mean(data.Sepal_Width)-mean(data.Sepal_Width(strcmp(data.Species,'versicolor')))
+d3=mean(data.Sepal_Width)-mean(data.Sepal_Width(strcmp(data.Species,'virginica')))
+
+mean(abs([d1 d2 d3]))
+
+
+% let us dummy code the data (i.e., turn the species into numbers)
+data.Species_coded(find(strcmp(data.Species, 'virginica'))) = 1;
+data.Species_coded(find(strcmp(data.Species, 'setosa'))) = 0;
+data.Species_coded(find(strcmp(data.Species, 'versicolor'))) = 0;
+
+data.Species_coded2(find(strcmp(data.Species, 'virginica'))) = 0;
+data.Species_coded2(find(strcmp(data.Species, 'setosa'))) = 0;
+data.Species_coded2(find(strcmp(data.Species, 'versicolor'))) = 1;
+
+% now that we have rearranged our data and put it in a format that we can
+% work with (i.e., long format) let us run a regression model 
+X = table(ones(size(data.Species)), data.Species_coded, data.Species_coded2);
+X.Properties.VariableNames = {'Intercept', 'Species', 'Species2'};
+
+
+[b,bint,r,rint,stats] = regress(data.Sepal_Width,table2array(X))    % Removes NaN data
+% b will return the beta coefficents
+% bint will retrun the 95% CI of the betas
+% r returns the residulas
+% rint diagnostic intervals to check for outliers 
+% stats returns the R2, the F, the p-value, and the estimated error
+% variance
+
+mean(data.Sepal_Width)
+mean(data.Sepal_Width(strcmp(data.Species,'setosa')))
+mean(data.Sepal_Width(strcmp(data.Species,'versicolor')))
+mean(data.Sepal_Width(strcmp(data.Species,'virginica')))
+
+d1=mean(data.Sepal_Width(strcmp(data.Species,'setosa'))-mean(data.Sepal_Width(strcmp(data.Species,'versicolor'))))
+d2=mean(data.Sepal_Width(strcmp(data.Species,'setosa'))-mean(data.Sepal_Width(strcmp(data.Species,'virginica'))))
+
 % exercise 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % what do you notice? How are they the same? How are they different? Is a
